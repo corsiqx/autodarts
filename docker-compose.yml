@@ -1,0 +1,68 @@
+services:
+  postgres:
+    image: postgres:17
+    container_name: corsiqx-autodarts-db-postgres
+    volumes:
+      - corsiqx-autodarts-postgres-data:/var/lib/postgresql/data
+    environment:
+      POSTGRES_PASSWORD: "6tLASfFoRegJLkew9j5a8w4MUBTKiiE5"
+      POSTGRES_USER: "corsiqx-autodarts"
+      POSTGRES_DB: "corsiqx-autodarts"
+    ports:
+      - "127.0.0.1:21100:5432"
+    restart: always
+    networks:
+      - corsiqx-autodarts_network
+
+  backend:
+    build:
+      context: .
+      dockerfile: ./corsiqx-autodarts-rest-api/Dockerfile
+    container_name: corsiqx-autodarts-rest-api
+    depends_on:
+      - postgres
+    ports:
+      - "127.0.0.1:21010:80"
+    env_file:
+      - ./corsiqx-autodarts-rest-api/.env
+    environment:
+      PORT: "80"
+    volumes:
+      - ./media:/app/media
+    restart: always
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "5"
+    networks:
+      - corsiqx-autodarts_network
+
+  # Build: docker compose build --build-arg c=development frontend
+  frontend:
+    build:
+      context: .
+      dockerfile: ./corsiqx-autodarts-frontend/Dockerfile
+      args:
+        c: production
+    container_name: corsiqx-autodarts-frontend
+    depends_on:
+      - backend
+    ports:
+      - "127.0.0.1:21001:80"
+    restart: always
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "5"
+    networks:
+      - corsiqx-autodarts_network
+
+volumes:
+  corsiqx-autodarts-postgres-data:
+    driver: local
+
+networks:
+  corsiqx-autodarts_network:
+    driver: bridge
