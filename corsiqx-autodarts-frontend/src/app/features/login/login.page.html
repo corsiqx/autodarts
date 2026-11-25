@@ -1,0 +1,129 @@
+<main class="app-backdrop min-h-dvh">
+  <div class="mx-auto flex min-h-dvh w-full max-w-[26rem] flex-col justify-center px-4 py-12 sm:px-0">
+    <p class="flex items-center gap-2 font-display text-lg font-semibold uppercase tracking-[0.06em]">
+      <i class="ph-fill ph-target text-2xl text-sky" aria-hidden="true"></i>
+      corsiqx autodarts
+    </p>
+
+    <h1 class="mt-10 font-display text-6xl leading-[0.9] font-bold uppercase tracking-[-0.01em]">
+      Wer wirft?
+    </h1>
+    <p class="mt-3 text-[1.0625rem] leading-relaxed text-muted">
+      Wähle deinen Account, um weiterzuspielen.
+    </p>
+
+    <section class="mt-9" aria-labelledby="players-heading">
+      <h2 id="players-heading" class="sr-only">Accounts</h2>
+
+      @switch (store.status()) {
+        @case ('error') {
+          <div
+            class="rounded-lg border border-danger/40 bg-danger/10 px-4 py-4 text-danger"
+            role="alert"
+          >
+            <p class="flex items-center gap-2 font-semibold">
+              <i class="ph-fill ph-warning-circle text-lg" aria-hidden="true"></i>
+              {{ store.loadError() }}
+            </p>
+            <p class="mt-1 text-sm text-bone/80">Läuft die REST-API? Dann lade die Liste neu.</p>
+            <button
+              type="button"
+              class="mt-3 inline-flex h-11 cursor-pointer items-center gap-2 rounded-lg border border-line-strong px-4 text-sm font-semibold text-bone transition-colors duration-150 hover:bg-surface-2"
+              (click)="store.load()"
+            >
+              <i class="ph ph-arrow-clockwise" aria-hidden="true"></i>
+              Erneut versuchen
+            </button>
+          </div>
+        }
+        @case ('loaded') {
+          @if (store.isEmpty()) {
+            <p class="rounded-lg border border-dashed border-line-strong px-4 py-6 text-center text-muted">
+              Noch kein Account angelegt.<br />
+              Leg unten den ersten an.
+            </p>
+          } @else {
+            <ul class="grid gap-2">
+              @for (user of store.users(); track user.id; let i = $index) {
+                @let selected = store.selectedId() === user.id;
+                <li class="enter-up" [style.--i]="i">
+                  <button
+                    type="button"
+                    class="group flex min-h-16 w-full cursor-pointer items-center gap-3.5 rounded-lg border px-3 py-2.5 text-left transition-[background-color,border-color,transform] duration-150 active:scale-[0.99]"
+                    [class]="
+                      selected
+                        ? 'border-accent bg-linear-to-r from-accent/25 to-sky/10'
+                        : 'border-line bg-surface/70 hover:border-line-strong hover:bg-surface-2'
+                    "
+                    [attr.aria-pressed]="selected"
+                    (click)="store.select(user.id)"
+                  >
+                    <span
+                      class="grid size-11 shrink-0 place-items-center rounded-md font-display text-lg font-bold tracking-[0.02em] transition-colors duration-150"
+                      [class]="
+                        selected
+                          ? 'bg-linear-to-br from-accent to-sky text-board'
+                          : 'bg-surface-2 text-bone'
+                      "
+                      aria-hidden="true"
+                      >{{ initials(user.name) }}</span
+                    >
+                    <span class="min-w-0 flex-1 truncate text-lg font-medium">{{ user.name }}</span>
+                    @if (selected) {
+                      <i class="ph-fill ph-check-circle text-2xl text-sky" aria-hidden="true"></i>
+                    } @else {
+                      <i
+                        class="ph ph-caret-right text-xl text-muted transition-transform duration-150 group-hover:translate-x-0.5"
+                        aria-hidden="true"
+                      ></i>
+                    }
+                  </button>
+                </li>
+              }
+            </ul>
+          }
+        }
+        @default {
+          <ul class="grid gap-2" aria-busy="true" aria-label="Accounts werden geladen">
+            @for (row of skeletonRows; track row) {
+              <li
+                class="flex min-h-16 items-center gap-3.5 rounded-lg border border-line bg-surface px-3 py-2.5"
+              >
+                <span class="size-11 rounded-md bg-surface-2 motion-safe:animate-pulse"></span>
+                <span
+                  class="h-4 rounded bg-surface-2 motion-safe:animate-pulse"
+                  [style.width.%]="[46, 62, 38][row]"
+                ></span>
+              </li>
+            }
+          </ul>
+        }
+      }
+    </section>
+
+    <div class="my-8 flex items-center gap-4" aria-hidden="true">
+      <span class="h-px flex-1 bg-linear-to-r from-transparent to-accent/60"></span>
+      <span class="font-display text-base font-semibold uppercase tracking-[0.2em] text-muted"
+        >oder</span
+      >
+      <span class="h-px flex-1 bg-linear-to-l from-transparent to-accent/60"></span>
+    </div>
+
+    <button
+      type="button"
+      class="flex h-13 w-full cursor-pointer items-center justify-center gap-2.5 rounded-lg border font-display text-xl text-bone font-bold uppercase tracking-[0.04em] transition-[background-color,border-color,transform] duration-150 active:scale-[0.98]"
+      [class]="
+        store.isEmpty()
+          ? 'border-accent/60 bg-linear-to-br from-accent-deep to-accent shadow-[0_10px_30px_-10px_var(--color-accent)] hover:brightness-110'
+          : 'border-line-strong bg-surface/60 hover:border-accent/70 hover:bg-surface-2'
+      "
+      aria-haspopup="dialog"
+      (click)="openAddDialog()"
+    >
+      <i class="ph ph-user-plus text-2xl" aria-hidden="true"></i>
+      Account hinzufügen
+    </button>
+  </div>
+</main>
+
+<app-add-account-dialog />

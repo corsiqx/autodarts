@@ -1,3 +1,93 @@
-/* You can add global styles to this file, and also import other style files */
-
 @import "tailwindcss";
+
+/* Night-blue ground with a cobalt accent and a sky highlight for gradients. */
+@theme {
+  --color-board: #070d1f;
+  --color-surface: #0e1830;
+  --color-surface-2: #15223f;
+  --color-line: #1f2f52;
+  --color-line-strong: #2c4170;
+  --color-bone: #eaf0ff;
+  --color-muted: #9aa8c9;
+  --color-accent: #3d7bff;
+  --color-accent-deep: #2453d6;
+  --color-sky: #56c2ff;
+  --color-danger: #ff8a90;
+
+  --font-sans: "Barlow", ui-sans-serif, system-ui, sans-serif;
+  --font-display: "Barlow Condensed", "Barlow", ui-sans-serif, system-ui, sans-serif;
+
+  --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@layer base {
+  html {
+    color-scheme: dark;
+    background-color: var(--color-board);
+  }
+
+  body {
+    @apply bg-board font-sans text-bone antialiased;
+    caret-color: var(--color-sky);
+    scrollbar-color: var(--color-line-strong) var(--color-board);
+  }
+
+  ::selection {
+    background-color: color-mix(in oklab, var(--color-accent) 55%, transparent);
+    color: var(--color-bone);
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--color-sky);
+    outline-offset: 2px;
+  }
+
+  input:-webkit-autofill {
+    -webkit-text-fill-color: var(--color-bone);
+    box-shadow: 0 0 0 100px var(--color-surface-2) inset;
+  }
+}
+
+/* Two soft blue light pools on the night ground; fixed so they stay put while scrolling. */
+.app-backdrop {
+  background:
+    radial-gradient(60rem 40rem at 85% -10%, rgb(61 123 255 / 0.32), transparent 65%),
+    radial-gradient(48rem 36rem at -15% 110%, rgb(86 194 255 / 0.16), transparent 65%),
+    linear-gradient(180deg, #0a1430 0%, var(--color-board) 70%);
+  background-attachment: fixed;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .enter-up {
+    animation: enter-up 0.5s var(--ease-out-expo) both;
+    animation-delay: calc(var(--i, 0) * 45ms);
+  }
+
+  .account-dialog[open] {
+    animation: dialog-in 0.28s var(--ease-out-expo);
+  }
+
+  .account-dialog[open]::backdrop {
+    animation: backdrop-in 0.28s ease-out;
+  }
+}
+
+@keyframes enter-up {
+  from {
+    transform: translateY(8px);
+    opacity: 0;
+  }
+}
+
+@keyframes dialog-in {
+  from {
+    transform: translateY(12px) scale(0.98);
+    opacity: 0;
+  }
+}
+
+@keyframes backdrop-in {
+  from {
+    opacity: 0;
+  }
+}
