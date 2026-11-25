@@ -3,9 +3,10 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { ConfigModule } from '@nestjs/config';
 import { PostgresPrismaModule } from './postgres-prisma/postgres-prisma.module';
+import { UsersModule } from './users/users.module';
 
 @Module({
-  imports: [ConfigModule.forRoot({ isGlobal: true }), PostgresPrismaModule],
+  imports: [ConfigModule.forRoot({ isGlobal: true }), PostgresPrismaModule, UsersModule],
   controllers: [AppController],
   providers: [AppService],
 })
