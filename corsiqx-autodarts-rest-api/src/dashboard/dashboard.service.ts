@@ -44,7 +44,7 @@ export interface HomeOverview {
 
 const HISTORY_SIZE = 10;
 /** Tournament cards shown on the start page. */
-const TOURNAMENT_LIMIT = 9;
+const TOURNAMENT_LIMIT = 14;
 
 /** Board and match ids end up in upstream URLs, so only plain id characters are allowed. */
 const SAFE_ID = /^[A-Za-z0-9-]{1,64}$/;
