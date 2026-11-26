@@ -1,20 +1,27 @@
 /**
- * Colour of an average badge, in steps of ten from cold to hot:
- * grey, green, blue, violet, pink, orange, red, gold, and a bright gold for 90+.
+ * Average badges as on play.autodarts.com: a slanted tag, dark tinted background, coloured number.
+ * Steps of ten: below 40 grey, then green, cyan, violet, gold, orange, and rose from 90 up.
  * The class strings are written out in full so Tailwind finds them.
  */
 const TIERS: { from: number; classes: string }[] = [
-  { from: 90, classes: 'bg-linear-to-r from-amber-200 via-yellow-50 to-amber-300 text-board shadow-[0_0_14px_rgb(253_230_138/0.6)]' },
-  { from: 80, classes: 'bg-linear-to-r from-amber-400 to-yellow-300 text-board' },
-  { from: 70, classes: 'bg-linear-to-r from-red-600 to-rose-400 text-white' },
-  { from: 60, classes: 'bg-linear-to-r from-orange-500 to-amber-400 text-board' },
-  { from: 50, classes: 'bg-linear-to-r from-pink-600 to-fuchsia-400 text-white' },
-  { from: 40, classes: 'bg-linear-to-r from-violet-600 to-purple-400 text-white' },
-  { from: 30, classes: 'bg-linear-to-r from-accent to-sky text-board' },
-  { from: 20, classes: 'bg-linear-to-r from-emerald-600 to-green-400 text-board' },
-  { from: 0, classes: 'bg-linear-to-r from-slate-600 to-slate-400 text-white' },
+  { from: 90, classes: 'bg-[#4a1d2b] text-[#f2607e]' },
+  { from: 80, classes: 'bg-[#45281f] text-[#f28a4e]' },
+  { from: 70, classes: 'bg-[#433b1f] text-[#e8c64b]' },
+  { from: 60, classes: 'bg-[#2a2350] text-[#9d7ff5]' },
+  { from: 50, classes: 'bg-[#123547] text-[#30b6e3]' },
+  { from: 40, classes: 'bg-[#12352a] text-[#3fcf8e]' },
+  { from: 0, classes: 'bg-[#2a2f3b] text-[#a3aab7]' },
 ];
 
+/** Colours plus the slanted shape (`avg-badge` in styles.css). */
 export function averageTierClasses(average: number): string {
-  return (TIERS.find((tier) => average >= tier.from) ?? TIERS[TIERS.length - 1]).classes;
+  const tier = TIERS.find((t) => average >= t.from) ?? TIERS[TIERS.length - 1];
+  return `avg-badge ${tier.classes}`;
+}
+
+/** Autodarts bot levels: level 1 throws an average of 20, every level adds 10, up to level 11. */
+export const BOT_LEVELS = Array.from({ length: 11 }, (_, i) => ({ level: i + 1, average: 20 + i * 10 }));
+
+export function botLevel(average: number): number {
+  return Math.min(11, Math.max(1, Math.round((average - 20) / 10) + 1));
 }

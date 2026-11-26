@@ -132,3 +132,22 @@
     padding: 1.5rem;
   }
 }
+
+/* Slanted average tag like on play.autodarts.com; colours come from average-tier.ts. */
+.avg-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding-inline: 0.7em 0.8em;
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  line-height: 1.5;
+  clip-path: polygon(0.45em 0, 100% 0, calc(100% - 0.45em) 100%, 0 100%);
+  border-radius: 0.2em;
+}
+
+/* Name part of a bot tag: straight left edge under the avatar, slanted right edge. */
+.bot-tag {
+  clip-path: polygon(0 0, 100% 0, calc(100% - 0.45em) 100%, 0 100%);
+}

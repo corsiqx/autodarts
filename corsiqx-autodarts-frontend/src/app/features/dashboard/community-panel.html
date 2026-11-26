@@ -81,7 +81,7 @@
                       >
                     </span>
                     @if (friend.average !== null) {
-                      <span class="shrink-0 rounded-md px-1.5 py-0.5 text-xs font-bold tabular-nums" [class]="tier(friend.average)">{{
+                      <span class="h-5 shrink-0 text-xs" [class]="tier(friend.average)">{{
                         formatAverage(friend.average)
                       }}</span>
                     }
