@@ -22,6 +22,8 @@ export interface HomeProfile {
   total180s: number | null;
   tournamentsPlayed: number | null;
   tournamentWins: number | null;
+  /** Achievement keys from Autodarts, e.g. `earlySupporter`. */
+  achievements: string[];
   season: {
     level: number;
     xpInLevel: number;
@@ -95,6 +97,9 @@ export function toHomeProfile(user: unknown): HomeProfile | null {
     total180s: num(user.total180s),
     tournamentsPlayed: num(user.tournamentsPlayed),
     tournamentWins: num(user.tournamentWins),
+    achievements: list(user.achievements)
+      .map(str)
+      .filter((a): a is string => a !== null),
     season: season
       ? {
           level: num(season.level) ?? 1,
