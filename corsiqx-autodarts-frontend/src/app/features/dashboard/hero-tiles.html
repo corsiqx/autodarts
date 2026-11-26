@@ -2,12 +2,7 @@
   <app-live-match-panel class="enter-up" />
 } @else {
   <div class="grid gap-3 sm:grid-cols-2 sm:gap-4">
-    <a
-      href="https://play.autodarts.com/play"
-      target="_blank"
-      rel="noopener"
-      class="hero-tile group bg-linear-to-br from-[#1d4fd8] via-accent to-sky"
-    >
+    <a routerLink="/play" class="hero-tile group bg-linear-to-br from-[#1d4fd8] via-accent to-sky">
       <span class="hero-tile__shape bg-white/10" aria-hidden="true"></span>
       <span class="hero-tile__shape hero-tile__shape--2 bg-board/15" aria-hidden="true"></span>
       <i
@@ -16,10 +11,9 @@
       ></i>
       <span class="relative mt-auto grid gap-1">
         <span class="font-display text-[2.1rem] leading-none font-bold uppercase italic tracking-tight sm:text-5xl">Jetzt spielen</span>
-        <span class="text-sm font-medium text-white/85">Solo, gegen einen Freund oder gegen einen Bot</span>
+        <span class="text-sm font-medium text-white/85">Allein, mit Gästen oder gegen einen Bot</span>
       </span>
-      <i class="ph ph-arrow-up-right absolute right-4 top-4 text-xl text-white/80" aria-hidden="true"></i>
-      <span class="sr-only">(öffnet Autodarts Play)</span>
+      <i class="ph ph-arrow-right absolute right-4 top-4 text-xl text-white/80" aria-hidden="true"></i>
     </a>
 
     <a

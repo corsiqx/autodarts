@@ -1,0 +1,306 @@
+<div class="app-backdrop min-h-dvh overflow-x-clip">
+  <header class="sticky top-0 z-20 border-b border-line/70 bg-board/75 backdrop-blur-md">
+    <div class="mx-auto flex h-16 w-full max-w-[100rem] items-center gap-3 px-4 sm:px-6">
+      <a
+        routerLink="/dashboard"
+        class="inline-flex h-10 items-center gap-2 rounded-lg px-2.5 text-sm font-semibold text-muted transition-colors duration-150 hover:bg-surface-2 hover:text-bone"
+      >
+        <i class="ph ph-arrow-left text-base" aria-hidden="true"></i>Start
+      </a>
+      <p class="ml-auto flex items-center gap-2 font-display text-lg font-semibold uppercase tracking-[0.06em]">
+        <i class="ph-fill ph-target text-2xl text-sky" aria-hidden="true"></i>
+        <span class="hidden sm:inline">corsiqx autodarts</span>
+      </p>
+    </div>
+  </header>
+
+  <main class="mx-auto w-full max-w-6xl px-4 pb-16 pt-6 sm:px-6 sm:pt-8">
+    <h1 class="font-display text-5xl leading-none font-bold uppercase italic tracking-tight sm:text-6xl">Jetzt spielen</h1>
+    <p class="mt-2 text-muted">X01 auf dem Autodarts-Server. Gegen Bots, mit Gästen am selben Board oder allein zum Trainieren.</p>
+
+    <div class="mt-8 grid grid-cols-[minmax(0,1fr)] gap-5 lg:grid-cols-[minmax(0,1fr)_22rem] lg:items-start">
+      <div class="grid min-w-0 grid-cols-[minmax(0,1fr)] gap-5">
+        <!-- Spielmodus -->
+        <section class="rounded-xl border border-line bg-surface/70 p-5" aria-labelledby="mode-heading">
+          <h2 id="mode-heading" class="font-display text-2xl font-bold uppercase">Spielmodus</h2>
+
+          <div class="mt-4 grid grid-cols-[minmax(0,1fr)] gap-5 sm:grid-cols-2">
+            <fieldset>
+              <legend class="mb-2 text-sm font-semibold text-muted">Startpunkte</legend>
+              <div class="grid grid-cols-4 gap-1.5 rounded-lg bg-board/60 p-1">
+                @for (score of baseScores; track score) {
+                  <button
+                    type="button"
+                    class="h-10 cursor-pointer rounded-md font-display text-lg font-bold tabular-nums transition-colors duration-150"
+                    [class]="baseScore() === score ? 'bg-linear-to-r from-accent to-sky text-board' : 'text-muted hover:bg-surface-2 hover:text-bone'"
+                    [attr.aria-pressed]="baseScore() === score"
+                    (click)="baseScore.set(score)"
+                  >
+                    {{ score }}
+                  </button>
+                }
+              </div>
+            </fieldset>
+
+            <fieldset>
+              <legend class="mb-2 text-sm font-semibold text-muted">Länge</legend>
+              <div class="flex flex-wrap items-center gap-3">
+                <div class="flex items-center gap-1 rounded-lg bg-board/60 p-1">
+                  <button type="button" class="grid size-10 cursor-pointer place-items-center rounded-md hover:bg-surface-2 disabled:opacity-40" [disabled]="legs() <= 1" (click)="changeLegs(-1)" aria-label="Ein Leg weniger">
+                    <i class="ph ph-minus" aria-hidden="true"></i>
+                  </button>
+                  <span class="min-w-28 text-center font-semibold tabular-nums">First to {{ legs() }} {{ legs() === 1 ? 'Leg' : 'Legs' }}</span>
+                  <button type="button" class="grid size-10 cursor-pointer place-items-center rounded-md hover:bg-surface-2 disabled:opacity-40" [disabled]="legs() >= 11" (click)="changeLegs(1)" aria-label="Ein Leg mehr">
+                    <i class="ph ph-plus" aria-hidden="true"></i>
+                  </button>
+                </div>
+                <div class="flex items-center gap-1 rounded-lg bg-board/60 p-1">
+                  <button type="button" class="grid size-10 cursor-pointer place-items-center rounded-md hover:bg-surface-2 disabled:opacity-40" [disabled]="!sets()" (click)="changeSets(-1)" aria-label="Ein Set weniger">
+                    <i class="ph ph-minus" aria-hidden="true"></i>
+                  </button>
+                  <span class="min-w-24 text-center text-sm font-semibold tabular-nums" [class.text-muted]="!sets()">
+                    {{ sets() ? 'First to ' + sets() + (sets() === 1 ? ' Set' : ' Sets') : 'Ohne Sets' }}
+                  </span>
+                  <button type="button" class="grid size-10 cursor-pointer place-items-center rounded-md hover:bg-surface-2 disabled:opacity-40" [disabled]="(sets() ?? 0) >= 7" (click)="changeSets(1)" aria-label="Ein Set mehr">
+                    <i class="ph ph-plus" aria-hidden="true"></i>
+                  </button>
+                </div>
+              </div>
+            </fieldset>
+
+            <fieldset>
+              <legend class="mb-2 text-sm font-semibold text-muted">Check-in</legend>
+              <div class="grid grid-cols-3 gap-1.5 rounded-lg bg-board/60 p-1">
+                @for (mode of modes; track mode.value) {
+                  <button
+                    type="button"
+                    class="h-10 cursor-pointer rounded-md text-sm font-semibold transition-colors duration-150"
+                    [class]="inMode() === mode.value ? 'bg-surface-2 text-bone ring-1 ring-accent/70' : 'text-muted hover:bg-surface-2 hover:text-bone'"
+                    [attr.aria-pressed]="inMode() === mode.value"
+                    (click)="inMode.set(mode.value)"
+                  >
+                    {{ mode.label }} In
+                  </button>
+                }
+              </div>
+            </fieldset>
+
+            <fieldset>
+              <legend class="mb-2 text-sm font-semibold text-muted">Check-out</legend>
+              <div class="grid grid-cols-3 gap-1.5 rounded-lg bg-board/60 p-1">
+                @for (mode of modes; track mode.value) {
+                  <button
+                    type="button"
+                    class="h-10 cursor-pointer rounded-md text-sm font-semibold transition-colors duration-150"
+                    [class]="outMode() === mode.value ? 'bg-surface-2 text-bone ring-1 ring-accent/70' : 'text-muted hover:bg-surface-2 hover:text-bone'"
+                    [attr.aria-pressed]="outMode() === mode.value"
+                    (click)="outMode.set(mode.value)"
+                  >
+                    {{ mode.label }} Out
+                  </button>
+                }
+              </div>
+            </fieldset>
+
+            <fieldset>
+              <legend class="mb-2 text-sm font-semibold text-muted">Bull</legend>
+              <div class="grid grid-cols-2 gap-1.5 rounded-lg bg-board/60 p-1">
+                @for (mode of ['25/50', '50/50']; track mode) {
+                  <button
+                    type="button"
+                    class="h-10 cursor-pointer rounded-md text-sm font-semibold transition-colors duration-150"
+                    [class]="bullMode() === mode ? 'bg-surface-2 text-bone ring-1 ring-accent/70' : 'text-muted hover:bg-surface-2 hover:text-bone'"
+                    [attr.aria-pressed]="bullMode() === mode"
+                    (click)="bullMode.set($any(mode))"
+                  >
+                    {{ mode }}
+                  </button>
+                }
+              </div>
+            </fieldset>
+
+            <label class="flex cursor-pointer items-center justify-between gap-3 self-end rounded-lg bg-board/60 px-4 py-3">
+              <span>
+                <span class="block font-semibold">Bull-Off</span>
+                <span class="text-sm text-muted">Wer näher am Bull ist, beginnt</span>
+              </span>
+              <input type="checkbox" class="size-5 cursor-pointer accent-[#3d7bff]" [checked]="bullOff()" (change)="bullOff.set(!bullOff())" />
+            </label>
+          </div>
+        </section>
+
+        <!-- Spieler -->
+        <section class="rounded-xl border border-line bg-surface/70 p-5" aria-labelledby="players-heading">
+          <div class="flex items-baseline justify-between gap-3">
+            <h2 id="players-heading" class="font-display text-2xl font-bold uppercase">Spieler</h2>
+            <span class="text-sm text-muted">{{ opponents().length + 1 }} von 6</span>
+          </div>
+
+          <ol class="mt-4 grid gap-2">
+            @if (users.session(); as session) {
+              <li class="flex items-center gap-3 rounded-lg bg-surface-2/70 px-3 py-2.5">
+                <span class="w-5 text-center font-display text-lg font-bold text-muted">1</span>
+                <app-avatar class="size-9 rounded-full" [name]="session.autodarts.username ?? session.user.name" />
+                <span class="min-w-0 flex-1">
+                  <span class="block truncate font-display text-lg font-bold uppercase">{{ session.autodarts.username ?? session.user.name }}</span>
+                  <span class="text-xs text-muted">Du · {{ scoringBoard()?.name ?? 'Manuelle Eingabe' }}</span>
+                </span>
+              </li>
+            }
+            @for (opponent of opponents(); track $index; let i = $index) {
+              <li class="flex items-center gap-3 rounded-lg bg-surface-2/70 px-3 py-2.5">
+                <span class="w-5 text-center font-display text-lg font-bold text-muted">{{ i + 2 }}</span>
+                @if (opponent.kind === 'bot') {
+                  <span class="grid size-9 place-items-center rounded-full bg-board/80 text-sky" aria-hidden="true">
+                    <i class="ph-fill ph-robot text-lg"></i>
+                  </span>
+                  <span class="min-w-0 flex-1">
+                    <span class="flex items-center gap-2 font-display text-lg font-bold uppercase">
+                      Bot
+                      <span class="rounded-md px-1.5 text-sm" [class]="tier(opponent.average)">{{ opponent.average }}</span>
+                    </span>
+                    <span class="text-xs text-muted">Wirft automatisch, Ø {{ opponent.average }}</span>
+                  </span>
+                } @else {
+                  <app-avatar class="size-9 rounded-full" [name]="opponent.name" />
+                  <span class="min-w-0 flex-1">
+                    <span class="block truncate font-display text-lg font-bold uppercase">{{ opponent.name }}</span>
+                    <span class="text-xs text-muted">Gast an deinem Board</span>
+                  </span>
+                }
+                <button
+                  type="button"
+                  class="grid size-9 cursor-pointer place-items-center rounded-md text-muted transition-colors duration-150 hover:bg-danger/15 hover:text-danger"
+                  [attr.aria-label]="'Spieler ' + (i + 2) + ' entfernen'"
+                  (click)="removeOpponent(i)"
+                >
+                  <i class="ph ph-x" aria-hidden="true"></i>
+                </button>
+              </li>
+            }
+          </ol>
+
+          @if (!full()) {
+            <div class="mt-5 grid gap-4 border-t border-line pt-5 md:grid-cols-2">
+              <div>
+                <p class="mb-2 text-sm font-semibold text-muted">Bot hinzufügen</p>
+                <div class="flex flex-wrap gap-1.5" role="group" aria-label="Bot-Stärke">
+                  @for (average of botAverages; track average) {
+                    <button
+                      type="button"
+                      class="h-9 min-w-11 cursor-pointer rounded-md px-2 font-display text-base font-bold tabular-nums transition-[opacity,transform] duration-150"
+                      [class]="botAverage() === average ? tier(average) + ' scale-105' : tier(average) + ' opacity-45 hover:opacity-80'"
+                      [attr.aria-pressed]="botAverage() === average"
+                      [attr.aria-label]="'Bot mit Average ' + average"
+                      (click)="botAverage.set(average)"
+                    >
+                      {{ average }}
+                    </button>
+                  }
+                </div>
+                <button
+                  type="button"
+                  class="mt-3 inline-flex h-10 cursor-pointer items-center gap-2 rounded-lg border border-line-strong px-3 text-sm font-semibold transition-colors duration-150 hover:border-accent/70 hover:bg-surface-2"
+                  (click)="addBot()"
+                >
+                  <i class="ph ph-robot" aria-hidden="true"></i>Bot Ø {{ botAverage() }} hinzufügen
+                </button>
+              </div>
+
+              <form class="flex flex-col" (submit)="$event.preventDefault(); addGuest()">
+                <label for="guest-name" class="mb-2 text-sm font-semibold text-muted">Gast hinzufügen</label>
+                <div class="flex gap-2">
+                  <input
+                    id="guest-name"
+                    name="guest"
+                    class="h-10 min-w-0 flex-1 rounded-lg border border-line-strong bg-board/60 px-3 text-bone placeholder:text-muted/70 focus:border-accent focus:outline-none"
+                    placeholder="Name"
+                    maxlength="32"
+                    autocomplete="off"
+                    [ngModel]="guestName()"
+                    (ngModelChange)="guestName.set($event)"
+                  />
+                  <button
+                    type="submit"
+                    class="inline-flex h-10 cursor-pointer items-center gap-2 rounded-lg border border-line-strong px-3 text-sm font-semibold transition-colors duration-150 hover:border-accent/70 hover:bg-surface-2 disabled:cursor-not-allowed disabled:opacity-45"
+                    [disabled]="!guestName().trim()"
+                  >
+                    <i class="ph ph-user-plus" aria-hidden="true"></i>Hinzufügen
+                  </button>
+                </div>
+                <p class="mt-2 text-xs text-muted">Spielt am selben Board bzw. du trägst seine Würfe mit ein.</p>
+              </form>
+            </div>
+          }
+        </section>
+      </div>
+
+      <!-- Zählung + Start -->
+      <aside class="grid min-w-0 grid-cols-[minmax(0,1fr)] gap-5 lg:sticky lg:top-20">
+        <section class="rounded-xl border border-line bg-surface/70 p-5" aria-labelledby="scoring-heading">
+          <h2 id="scoring-heading" class="font-display text-2xl font-bold uppercase">Zählung</h2>
+          <div class="mt-3 grid gap-2" role="radiogroup" aria-labelledby="scoring-heading">
+            <button
+              type="button"
+              role="radio"
+              class="flex cursor-pointer items-center gap-3 rounded-lg border px-3 py-2.5 text-left transition-colors duration-150"
+              [class]="scoring() === 'manual' ? 'border-accent bg-accent/10' : 'border-line hover:border-line-strong'"
+              [attr.aria-checked]="scoring() === 'manual'"
+              (click)="scoring.set('manual')"
+            >
+              <i class="ph ph-keyboard text-xl text-sky" aria-hidden="true"></i>
+              <span>
+                <span class="block font-semibold">Manuell eingeben</span>
+                <span class="text-xs text-muted">Würfe oder Punkte per Tastenfeld</span>
+              </span>
+            </button>
+            @if (boards() === null) {
+              <div class="h-14 rounded-lg bg-surface-2/60 motion-safe:animate-pulse" aria-label="Boards werden geladen"></div>
+            }
+            @for (board of boards() ?? []; track board.id) {
+              <button
+                type="button"
+                role="radio"
+                class="flex cursor-pointer items-center gap-3 rounded-lg border px-3 py-2.5 text-left transition-colors duration-150"
+                [class]="scoring() === board.id ? 'border-accent bg-accent/10' : 'border-line hover:border-line-strong'"
+                [attr.aria-checked]="scoring() === board.id"
+                (click)="scoring.set(board.id)"
+              >
+                <i class="ph-fill ph-target text-xl" [class]="board.connected ? 'text-sky' : 'text-muted'" aria-hidden="true"></i>
+                <span class="min-w-0">
+                  <span class="block truncate font-semibold">{{ board.name }}</span>
+                  <span class="text-xs" [class]="board.connected ? 'text-sky' : 'text-muted'">
+                    {{ board.connected ? 'Online, erkennt Würfe automatisch' : 'Offline, Würfe dann manuell' }}
+                  </span>
+                </span>
+              </button>
+            }
+          </div>
+        </section>
+
+        <section class="rounded-xl border border-accent/40 bg-linear-to-br from-accent-deep/40 to-surface/80 p-5">
+          <p class="text-sm font-semibold uppercase tracking-wider text-muted">Dein Spiel</p>
+          <p class="mt-1 font-display text-xl leading-tight font-bold">{{ summary() }}</p>
+          <p class="mt-1 text-sm text-muted">{{ opponents().length + 1 }} {{ opponents().length ? 'Spieler' : 'Spieler, Training' }}{{ bullOff() ? ' · Bull-Off' : '' }}</p>
+          @if (error(); as message) {
+            <p class="mt-3 flex items-start gap-2 text-sm text-danger" role="alert">
+              <i class="ph-fill ph-warning-circle mt-0.5" aria-hidden="true"></i>{{ message }}
+            </p>
+          }
+          <button
+            type="button"
+            class="mt-4 inline-flex h-13 w-full cursor-pointer items-center justify-center gap-2 rounded-lg bg-linear-to-r from-accent to-sky font-display text-xl font-bold uppercase text-board shadow-[0_12px_30px_-14px_rgb(86_194_255/0.9)] transition-[transform,filter] duration-150 hover:brightness-110 active:scale-[0.98] disabled:cursor-progress disabled:opacity-70"
+            [disabled]="starting()"
+            (click)="start()"
+          >
+            @if (starting()) {
+              <i class="ph ph-circle-notch animate-spin" aria-hidden="true"></i>Starte Spiel
+            } @else {
+              <i class="ph-fill ph-play" aria-hidden="true"></i>Spiel starten
+            }
+          </button>
+        </section>
+      </aside>
+    </div>
+  </main>
+</div>
