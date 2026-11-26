@@ -3,6 +3,7 @@ import { DashboardStore } from '../../core/autodarts/dashboard.store';
 import { Avatar } from '../../shared/avatar';
 import { averageTierClasses } from '../../shared/average-tier';
 import { Flag } from '../../shared/flag';
+import { ProfileBadges } from '../../shared/profile-badges';
 
 const oneDecimal = new Intl.NumberFormat('de-DE', {
   minimumFractionDigits: 1,
@@ -18,7 +19,7 @@ interface Figure {
 /** Name, flag, average badge and headline numbers of the signed-in Autodarts account. */
 @Component({
   selector: 'app-player-strip',
-  imports: [Avatar, Flag],
+  imports: [Avatar, Flag, ProfileBadges],
   host: { class: 'block' },
   templateUrl: './player-strip.html',
   changeDetection: ChangeDetectionStrategy.OnPush,

@@ -4,6 +4,7 @@ import { DashboardStore } from '../../core/autodarts/dashboard.store';
 import { Avatar } from '../../shared/avatar';
 import { averageTierClasses } from '../../shared/average-tier';
 import { Flag } from '../../shared/flag';
+import { ProfileBadges } from '../../shared/profile-badges';
 import { BoardsPanel } from './boards-panel';
 
 const average = new Intl.NumberFormat('de-DE', { maximumFractionDigits: 1 });
@@ -23,7 +24,7 @@ const GROUPS: { status: FriendStatus; label: string }[] = [
 /** Sidebar with the account's boards and its friends grouped by what they are doing. */
 @Component({
   selector: 'app-community-panel',
-  imports: [Avatar, Flag, BoardsPanel],
+  imports: [Avatar, Flag, BoardsPanel, ProfileBadges],
   host: { class: 'block' },
   templateUrl: './community-panel.html',
   changeDetection: ChangeDetectionStrategy.OnPush,

@@ -71,7 +71,7 @@
                         <span class="truncate font-display text-base font-bold uppercase tracking-wide">{{ friend.name }}</span>
                         <app-flag class="text-xs" [country]="friend.country" />
                         @if (friend.plus) {
-                          <i class="ph-fill ph-crown-simple text-xs text-amber-300" aria-label="Plus-Mitglied"></i>
+                          <app-profile-badges [plus]="true" [size]="15" />
                         }
                       </span>
                       <span

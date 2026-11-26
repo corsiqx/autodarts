@@ -88,6 +88,8 @@ export interface HomeProfile {
   total180s: number | null;
   tournamentsPlayed: number | null;
   tournamentWins: number | null;
+  /** Achievement keys, e.g. `earlySupporter`. */
+  achievements: string[];
   season: {
     level: number;
     xpInLevel: number;
