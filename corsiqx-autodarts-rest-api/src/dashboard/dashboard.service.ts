@@ -1,0 +1,107 @@
+import { BadRequestException, Injectable, Logger } from '@nestjs/common';
+import { AutodartsApiClient } from '../autodarts/autodarts-api.client';
+import {
+  DashboardBoard,
+  LiveMatch,
+  MatchHistoryEntry,
+  StatFigure,
+  toBoards,
+  toHistory,
+  toLiveMatch,
+  toMatchId,
+  lastPageIndex,
+  toStatFigures,
+  unwrapList,
+} from './dashboard.mapper';
+
+export type BoardAction = 'start' | 'stop' | 'reset';
+
+export interface DashboardStats {
+  x01: StatFigure[] | null;
+  history: MatchHistoryEntry[] | null;
+}
+
+const HISTORY_SIZE = 10;
+
+/** Board and match ids end up in upstream URLs, so only plain id characters are allowed. */
+const SAFE_ID = /^[A-Za-z0-9-]{1,64}$/;
+
+@Injectable()
+export class DashboardService {
+  private readonly logger = new Logger(DashboardService.name);
+
+  constructor(private readonly autodarts: AutodartsApiClient) {}
+
+  async boards(userId: string): Promise<DashboardBoard[]> {
+    return toBoards(await this.autodarts.get(userId, '/bs/v0/boards'));
+  }
+
+  async boardAction(
+    userId: string,
+    boardId: string,
+    action: BoardAction,
+  ): Promise<void> {
+    if (!SAFE_ID.test(boardId)) {
+      throw new BadRequestException({
+        code: 'invalid_board_id',
+        message: 'Ungültige Board-ID.',
+      });
+    }
+    const path = `/bs/v0/boards/${boardId}`;
+    if (action === 'reset') {
+      await this.autodarts.request(userId, 'POST', `${path}/reset`);
+    } else {
+      await this.autodarts.request(userId, 'PUT', `${path}/${action}`);
+    }
+  }
+
+  /** The account's running match, or `null` when it is not playing. */
+  async liveMatch(userId: string): Promise<LiveMatch | null> {
+    const matchId = toMatchId(
+      await this.autodarts.get(userId, '/us/v0/match-id'),
+    );
+    if (!matchId || !SAFE_ID.test(matchId)) {
+      return null;
+    }
+    return toLiveMatch(
+      await this.autodarts.get(userId, `/gs/v0/matches/${matchId}/state`),
+    );
+  }
+
+  /** X01 figures and recent matches; each part is `null` if Autodarts did not deliver it. */
+  async stats(userId: string): Promise<DashboardStats> {
+    const [x01, history] = await Promise.allSettled([
+      this.autodarts.get(userId, '/us/v0/profile/stats/x01?limit=100'),
+      this.recentMatches(userId),
+    ]);
+    for (const result of [x01, history]) {
+      if (result.status === 'rejected') {
+        this.logger.warn(`Stats part failed: ${String(result.reason)}`);
+      }
+    }
+    return {
+      x01: x01.status === 'fulfilled' ? toStatFigures(x01.value) : null,
+      history: history.status === 'fulfilled' ? toHistory(history.value) : null,
+    };
+  }
+
+  /**
+   * The history is paged oldest first and ignores sort parameters,
+   * so the newest matches are on the last two pages.
+   */
+  private async recentMatches(userId: string): Promise<unknown[]> {
+    const path = (page: number) =>
+      `/as/v0/matches?size=${HISTORY_SIZE}&page=${page}`;
+    const first = await this.autodarts.get(userId, path(0));
+    const last = lastPageIndex(first);
+    if (last === 0) {
+      return unwrapList(first);
+    }
+    const pages = await Promise.all(
+      [last, last - 1].map((page) =>
+        page === 0 ? first : this.autodarts.get(userId, path(page)),
+      ),
+    );
+    return pages.flatMap(unwrapList);
+  }
+}

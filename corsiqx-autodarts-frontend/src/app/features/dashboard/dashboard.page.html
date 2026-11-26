@@ -1,0 +1,54 @@
+<div class="app-backdrop min-h-dvh">
+  <header class="border-b border-line/70 bg-board/40 backdrop-blur-md">
+    <div
+      class="mx-auto flex h-16 w-full max-w-6xl items-center justify-between gap-4 px-4 sm:px-6"
+    >
+      <p
+        class="flex items-center gap-2 font-display text-lg font-semibold uppercase tracking-[0.06em]"
+      >
+        <i class="ph-fill ph-target text-2xl text-sky" aria-hidden="true"></i>
+        <span class="hidden sm:inline">corsiqx autodarts</span>
+      </p>
+
+      @if (users.session(); as session) {
+        <div class="flex min-w-0 items-center gap-3">
+          <span
+            class="grid size-9 shrink-0 place-items-center rounded-md bg-linear-to-br from-accent to-sky font-display text-base font-bold text-board"
+            aria-hidden="true"
+            >{{ initials(session.user.name) }}</span
+          >
+          <span class="grid min-w-0 leading-tight">
+            <span class="truncate font-semibold">{{ session.user.name }}</span>
+            <span class="truncate text-xs text-muted">
+              Autodarts{{ session.autodarts.username ? ': ' + session.autodarts.username : '' }}
+            </span>
+          </span>
+          <button
+            type="button"
+            class="ml-1 inline-flex h-10 shrink-0 cursor-pointer items-center gap-2 rounded-lg border border-line-strong px-3 text-sm font-semibold text-bone transition-colors duration-150 hover:border-accent/70 hover:bg-surface-2"
+            (click)="switchAccount()"
+          >
+            <i class="ph ph-arrows-left-right text-base" aria-hidden="true"></i>
+            <span class="hidden sm:inline">Account wechseln</span>
+            <span class="sr-only sm:hidden">Account wechseln</span>
+          </button>
+        </div>
+      }
+    </div>
+  </header>
+
+  <main class="mx-auto w-full max-w-6xl px-4 pb-16 pt-8 sm:px-6 sm:pt-10">
+    <h1 class="font-display text-5xl leading-none font-bold uppercase tracking-[-0.01em] sm:text-6xl">
+      Dashboard
+    </h1>
+
+    <div class="mt-8 grid gap-6 lg:grid-cols-[minmax(0,1.55fr)_minmax(0,1fr)] lg:items-start">
+      <!-- Mobile: live match, boards, stats. Desktop: live match and stats on the left. -->
+      <div class="contents lg:grid lg:gap-6">
+        <app-live-match-panel />
+        <app-stats-panel class="order-last lg:order-none" [userId]="userId" />
+      </div>
+      <app-boards-panel [userId]="userId" />
+    </div>
+  </main>
+</div>
