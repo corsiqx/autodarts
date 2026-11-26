@@ -45,32 +45,52 @@
           } @else {
             <ul class="grid gap-2">
               @for (user of store.users(); track user.id; let i = $index) {
-                @let selected = store.selectedId() === user.id;
+                @let active = store.activeUserId() === user.id;
+                @let loggingIn = store.loggingInId() === user.id;
+                @let failed = store.loginError()?.userId === user.id;
                 <li class="enter-up" [style.--i]="i">
                   <button
                     type="button"
-                    class="group flex min-h-16 w-full cursor-pointer items-center gap-3.5 rounded-lg border px-3 py-2.5 text-left transition-[background-color,border-color,transform] duration-150 active:scale-[0.99]"
+                    class="group flex min-h-16 w-full cursor-pointer items-center gap-3.5 rounded-lg border px-3 py-2.5 text-left transition-[background-color,border-color,transform] duration-150 active:scale-[0.99] disabled:cursor-progress"
                     [class]="
-                      selected
+                      active
                         ? 'border-accent bg-linear-to-r from-accent/25 to-sky/10'
-                        : 'border-line bg-surface/70 hover:border-line-strong hover:bg-surface-2'
+                        : failed
+                          ? 'border-danger/60 bg-danger/5'
+                          : loggingIn
+                            ? 'border-accent/60 bg-surface-2'
+                            : 'border-line bg-surface/70 hover:border-line-strong hover:bg-surface-2'
                     "
-                    [attr.aria-pressed]="selected"
-                    (click)="store.select(user.id)"
+                    [disabled]="!!store.loggingInId()"
+                    [attr.aria-pressed]="active"
+                    [attr.aria-busy]="loggingIn"
+                    [attr.aria-describedby]="failed ? 'login-error-' + user.id : null"
+                    (click)="store.login(user.id)"
                   >
                     <span
                       class="grid size-11 shrink-0 place-items-center rounded-md font-display text-lg font-bold tracking-[0.02em] transition-colors duration-150"
                       [class]="
-                        selected
+                        active
                           ? 'bg-linear-to-br from-accent to-sky text-board'
                           : 'bg-surface-2 text-bone'
                       "
                       aria-hidden="true"
                       >{{ initials(user.name) }}</span
                     >
-                    <span class="min-w-0 flex-1 truncate text-lg font-medium">{{ user.name }}</span>
-                    @if (selected) {
+                    <span class="grid min-w-0 flex-1">
+                      <span class="truncate text-lg font-medium">{{ user.name }}</span>
+                      @if (active) {
+                        <span class="truncate text-sm text-sky">
+                          Verbunden{{ store.session()?.autodarts?.username ? ' als ' + store.session()?.autodarts?.username : '' }}
+                        </span>
+                      } @else if (loggingIn) {
+                        <span class="text-sm text-muted">Verbinde mit Autodarts …</span>
+                      }
+                    </span>
+                    @if (active) {
                       <i class="ph-fill ph-check-circle text-2xl text-sky" aria-hidden="true"></i>
+                    } @else if (loggingIn) {
+                      <i class="ph ph-circle-notch animate-spin text-xl text-sky" aria-hidden="true"></i>
                     } @else {
                       <i
                         class="ph ph-caret-right text-xl text-muted transition-transform duration-150 group-hover:translate-x-0.5"
@@ -78,6 +98,16 @@
                       ></i>
                     }
                   </button>
+                  @if (failed) {
+                    <p
+                      [id]="'login-error-' + user.id"
+                      class="mt-2 flex items-start gap-1.5 px-1 text-sm text-danger"
+                      role="alert"
+                    >
+                      <i class="ph-fill ph-warning-circle mt-0.5" aria-hidden="true"></i>
+                      {{ store.loginError()?.message }}
+                    </p>
+                  }
                 </li>
               }
             </ul>

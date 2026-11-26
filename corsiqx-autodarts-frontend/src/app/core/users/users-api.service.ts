@@ -2,7 +2,7 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
 import { Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
-import { CreateUserPayload, UserSummary } from './user.model';
+import { CreateUserPayload, LoginResult, UserSummary } from './user.model';
 
 @Injectable({ providedIn: 'root' })
 export class UsersApiService {
@@ -13,7 +13,13 @@ export class UsersApiService {
     return this.http.get<UserSummary[]>(this.baseUrl);
   }
 
-  create(payload: CreateUserPayload): Observable<UserSummary> {
-    return this.http.post<UserSummary>(this.baseUrl, payload);
+  /** Verifies the credentials with Autodarts, stores the account and returns that login. */
+  create(payload: CreateUserPayload): Observable<LoginResult> {
+    return this.http.post<LoginResult>(this.baseUrl, payload);
+  }
+
+  /** Logs the stored account into Autodarts. */
+  login(userId: string): Observable<LoginResult> {
+    return this.http.post<LoginResult>(`${this.baseUrl}/${userId}/login`, {});
   }
 }

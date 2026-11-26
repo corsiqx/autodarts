@@ -1,4 +1,4 @@
-/** A user as exposed by the user list. Email and password hash never leave the API. */
+/** A user as exposed by the user list. Email and password never leave the API. */
 export interface UserSummary {
   id: string;
   name: string;
@@ -16,4 +16,20 @@ export type CreateUserField = keyof CreateUserPayload;
 export interface CreateUserError {
   field: CreateUserField | null;
   message: string;
+}
+
+/** Result of an Autodarts login the API did for a stored account. */
+export interface LoginResult {
+  user: UserSummary;
+  autodarts: {
+    userId: string;
+    username: string | null;
+    expiresAt: string;
+  };
+}
+
+/** Error body of the API for account and Autodarts errors. */
+export interface ApiErrorBody {
+  code?: string;
+  message?: string | string[];
 }

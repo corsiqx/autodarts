@@ -25,7 +25,7 @@
       </button>
     </div>
     <p id="account-dialog-hint" class="mt-2 text-[0.9375rem] leading-relaxed text-muted">
-      Dein Name erscheint in der Spielerliste. Das Passwort speichern wir nur als Hash.
+      Melde dich mit deinem Autodarts-Konto an. Der Name erscheint nur hier in der Spielerliste.
     </p>
 
     <div class="mt-7 grid gap-5">
@@ -52,7 +52,7 @@
       </div>
 
       <div class="grid gap-2">
-        <label for="account-email" class="text-sm font-semibold">E-Mail</label>
+        <label for="account-email" class="text-sm font-semibold">Autodarts E-Mail</label>
         <input
           id="account-email"
           type="email"
@@ -76,13 +76,13 @@
       </div>
 
       <div class="grid gap-2">
-        <label for="account-password" class="text-sm font-semibold">Passwort</label>
+        <label for="account-password" class="text-sm font-semibold">Autodarts Passwort</label>
         <div class="relative">
           <input
             id="account-password"
             [type]="showPassword() ? 'text' : 'password'"
             formControlName="password"
-            autocomplete="new-password"
+            autocomplete="current-password"
             maxlength="128"
             class="h-12 w-full rounded-lg border bg-surface-2 pl-3.5 pr-12 text-base text-bone transition-colors duration-150 focus:outline-none focus-visible:outline-2 focus-visible:outline-offset-0 focus-visible:outline-sky"
             [class.border-line-strong]="!fieldError('password')"
@@ -113,7 +113,7 @@
             <i class="ph-fill ph-warning-circle" aria-hidden="true"></i>{{ error }}
           </p>
         } @else {
-          <p id="account-password-help" class="text-sm text-muted">Mindestens 8 Zeichen.</p>
+          <p id="account-password-help" class="text-sm text-muted">Wird verschlüsselt gespeichert, damit ein Klick auf den Account genügt.</p>
         }
       </div>
     </div>
@@ -144,7 +144,7 @@
       >
         @if (store.creating()) {
           <i class="ph ph-circle-notch animate-spin text-lg" aria-hidden="true"></i>
-          Wird angelegt
+          Verbinde mit Autodarts
         } @else {
           Account anlegen
         }
