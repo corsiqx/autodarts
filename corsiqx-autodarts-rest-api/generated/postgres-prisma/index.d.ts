@@ -18,6 +18,11 @@ export type PrismaPromise<T> = $Public.PrismaPromise<T>
  * 
  */
 export type User = $Result.DefaultSelection<Prisma.$UserPayload>
+/**
+ * Model AutodartsSession
+ * Last Autodarts login of a user. Tokens are AES-256-GCM encrypted.
+ */
+export type AutodartsSession = $Result.DefaultSelection<Prisma.$AutodartsSessionPayload>
 
 /**
  * ##  Prisma Client ʲˢ
@@ -149,6 +154,16 @@ export class PrismaClient<
     * ```
     */
   get user(): Prisma.UserDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.autodartsSession`: Exposes CRUD operations for the **AutodartsSession** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more AutodartsSessions
+    * const autodartsSessions = await prisma.autodartsSession.findMany()
+    * ```
+    */
+  get autodartsSession(): Prisma.AutodartsSessionDelegate<ExtArgs, ClientOptions>;
 }
 
 export namespace Prisma {
@@ -596,7 +611,8 @@ export namespace Prisma {
 
 
   export const ModelName: {
-    User: 'User'
+    User: 'User',
+    AutodartsSession: 'AutodartsSession'
   };
 
   export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -612,7 +628,7 @@ export namespace Prisma {
       omit: GlobalOmitOptions
     }
     meta: {
-      modelProps: "user"
+      modelProps: "user" | "autodartsSession"
       txIsolationLevel: Prisma.TransactionIsolationLevel
     }
     model: {
@@ -687,6 +703,80 @@ export namespace Prisma {
           count: {
             args: Prisma.UserCountArgs<ExtArgs>
             result: $Utils.Optional<UserCountAggregateOutputType> | number
+          }
+        }
+      }
+      AutodartsSession: {
+        payload: Prisma.$AutodartsSessionPayload<ExtArgs>
+        fields: Prisma.AutodartsSessionFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.AutodartsSessionFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AutodartsSessionPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.AutodartsSessionFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AutodartsSessionPayload>
+          }
+          findFirst: {
+            args: Prisma.AutodartsSessionFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AutodartsSessionPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.AutodartsSessionFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AutodartsSessionPayload>
+          }
+          findMany: {
+            args: Prisma.AutodartsSessionFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AutodartsSessionPayload>[]
+          }
+          create: {
+            args: Prisma.AutodartsSessionCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AutodartsSessionPayload>
+          }
+          createMany: {
+            args: Prisma.AutodartsSessionCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.AutodartsSessionCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AutodartsSessionPayload>[]
+          }
+          delete: {
+            args: Prisma.AutodartsSessionDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AutodartsSessionPayload>
+          }
+          update: {
+            args: Prisma.AutodartsSessionUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AutodartsSessionPayload>
+          }
+          deleteMany: {
+            args: Prisma.AutodartsSessionDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.AutodartsSessionUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.AutodartsSessionUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AutodartsSessionPayload>[]
+          }
+          upsert: {
+            args: Prisma.AutodartsSessionUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AutodartsSessionPayload>
+          }
+          aggregate: {
+            args: Prisma.AutodartsSessionAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateAutodartsSession>
+          }
+          groupBy: {
+            args: Prisma.AutodartsSessionGroupByArgs<ExtArgs>
+            result: $Utils.Optional<AutodartsSessionGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.AutodartsSessionCountArgs<ExtArgs>
+            result: $Utils.Optional<AutodartsSessionCountAggregateOutputType> | number
           }
         }
       }
@@ -814,6 +904,7 @@ export namespace Prisma {
   }
   export type GlobalOmitConfig = {
     user?: UserOmit
+    autodartsSession?: AutodartsSessionOmit
   }
 
   /* Types for Logging */
@@ -909,6 +1000,7 @@ export namespace Prisma {
     name: string | null
     email: string | null
     passwordHash: string | null
+    passwordEncrypted: string | null
     createdAt: Date | null
     updatedAt: Date | null
   }
@@ -918,6 +1010,7 @@ export namespace Prisma {
     name: string | null
     email: string | null
     passwordHash: string | null
+    passwordEncrypted: string | null
     createdAt: Date | null
     updatedAt: Date | null
   }
@@ -927,6 +1020,7 @@ export namespace Prisma {
     name: number
     email: number
     passwordHash: number
+    passwordEncrypted: number
     createdAt: number
     updatedAt: number
     _all: number
@@ -938,6 +1032,7 @@ export namespace Prisma {
     name?: true
     email?: true
     passwordHash?: true
+    passwordEncrypted?: true
     createdAt?: true
     updatedAt?: true
   }
@@ -947,6 +1042,7 @@ export namespace Prisma {
     name?: true
     email?: true
     passwordHash?: true
+    passwordEncrypted?: true
     createdAt?: true
     updatedAt?: true
   }
@@ -956,6 +1052,7 @@ export namespace Prisma {
     name?: true
     email?: true
     passwordHash?: true
+    passwordEncrypted?: true
     createdAt?: true
     updatedAt?: true
     _all?: true
@@ -1038,6 +1135,7 @@ export namespace Prisma {
     name: string
     email: string
     passwordHash: string
+    passwordEncrypted: string | null
     createdAt: Date
     updatedAt: Date
     _count: UserCountAggregateOutputType | null
@@ -1064,8 +1162,10 @@ export namespace Prisma {
     name?: boolean
     email?: boolean
     passwordHash?: boolean
+    passwordEncrypted?: boolean
     createdAt?: boolean
     updatedAt?: boolean
+    autodartsSession?: boolean | User$autodartsSessionArgs<ExtArgs>
   }, ExtArgs["result"]["user"]>
 
   export type UserSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
@@ -1073,6 +1173,7 @@ export namespace Prisma {
     name?: boolean
     email?: boolean
     passwordHash?: boolean
+    passwordEncrypted?: boolean
     createdAt?: boolean
     updatedAt?: boolean
   }, ExtArgs["result"]["user"]>
@@ -1082,6 +1183,7 @@ export namespace Prisma {
     name?: boolean
     email?: boolean
     passwordHash?: boolean
+    passwordEncrypted?: boolean
     createdAt?: boolean
     updatedAt?: boolean
   }, ExtArgs["result"]["user"]>
@@ -1091,20 +1193,32 @@ export namespace Prisma {
     name?: boolean
     email?: boolean
     passwordHash?: boolean
+    passwordEncrypted?: boolean
     createdAt?: boolean
     updatedAt?: boolean
   }
 
-  export type UserOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "name" | "email" | "passwordHash" | "createdAt" | "updatedAt", ExtArgs["result"]["user"]>
+  export type UserOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "name" | "email" | "passwordHash" | "passwordEncrypted" | "createdAt" | "updatedAt", ExtArgs["result"]["user"]>
+  export type UserInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    autodartsSession?: boolean | User$autodartsSessionArgs<ExtArgs>
+  }
+  export type UserIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {}
+  export type UserIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {}
 
   export type $UserPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     name: "User"
-    objects: {}
+    objects: {
+      autodartsSession: Prisma.$AutodartsSessionPayload<ExtArgs> | null
+    }
     scalars: $Extensions.GetPayloadResult<{
       id: string
       name: string
       email: string
       passwordHash: string
+      /**
+       * Autodarts password, AES-256-GCM encrypted with CREDENTIALS_ENCRYPTION_KEY.
+       */
+      passwordEncrypted: string | null
       createdAt: Date
       updatedAt: Date
     }, ExtArgs["result"]["user"]>
@@ -1501,6 +1615,7 @@ export namespace Prisma {
    */
   export interface Prisma__UserClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
     readonly [Symbol.toStringTag]: "PrismaPromise"
+    autodartsSession<T extends User$autodartsSessionArgs<ExtArgs> = {}>(args?: Subset<T, User$autodartsSessionArgs<ExtArgs>>): Prisma__AutodartsSessionClient<$Result.GetResult<Prisma.$AutodartsSessionPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1534,6 +1649,7 @@ export namespace Prisma {
     readonly name: FieldRef<"User", 'String'>
     readonly email: FieldRef<"User", 'String'>
     readonly passwordHash: FieldRef<"User", 'String'>
+    readonly passwordEncrypted: FieldRef<"User", 'String'>
     readonly createdAt: FieldRef<"User", 'DateTime'>
     readonly updatedAt: FieldRef<"User", 'DateTime'>
   }
@@ -1553,6 +1669,10 @@ export namespace Prisma {
      */
     omit?: UserOmit<ExtArgs> | null
     /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: UserInclude<ExtArgs> | null
+    /**
      * Filter, which User to fetch.
      */
     where: UserWhereUniqueInput
@@ -1571,6 +1691,10 @@ export namespace Prisma {
      */
     omit?: UserOmit<ExtArgs> | null
     /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: UserInclude<ExtArgs> | null
+    /**
      * Filter, which User to fetch.
      */
     where: UserWhereUniqueInput
@@ -1588,6 +1712,10 @@ export namespace Prisma {
      * Omit specific fields from the User
      */
     omit?: UserOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: UserInclude<ExtArgs> | null
     /**
      * Filter, which User to fetch.
      */
@@ -1637,6 +1765,10 @@ export namespace Prisma {
      */
     omit?: UserOmit<ExtArgs> | null
     /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: UserInclude<ExtArgs> | null
+    /**
      * Filter, which User to fetch.
      */
     where?: UserWhereInput
@@ -1684,6 +1816,10 @@ export namespace Prisma {
      * Omit specific fields from the User
      */
     omit?: UserOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: UserInclude<ExtArgs> | null
     /**
      * Filter, which Users to fetch.
      */
@@ -1733,6 +1869,10 @@ export namespace Prisma {
      */
     omit?: UserOmit<ExtArgs> | null
     /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: UserInclude<ExtArgs> | null
+    /**
      * The data needed to create a User.
      */
     data: XOR<UserCreateInput, UserUncheckedCreateInput>
@@ -1780,6 +1920,10 @@ export namespace Prisma {
      * Omit specific fields from the User
      */
     omit?: UserOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: UserInclude<ExtArgs> | null
     /**
      * The data needed to update a User.
      */
@@ -1847,6 +1991,10 @@ export namespace Prisma {
      */
     omit?: UserOmit<ExtArgs> | null
     /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: UserInclude<ExtArgs> | null
+    /**
      * The filter to search for the User to update in case it exists.
      */
     where: UserWhereUniqueInput
@@ -1873,6 +2021,10 @@ export namespace Prisma {
      */
     omit?: UserOmit<ExtArgs> | null
     /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: UserInclude<ExtArgs> | null
+    /**
      * Filter which User to delete.
      */
     where: UserWhereUniqueInput
@@ -1893,6 +2045,25 @@ export namespace Prisma {
   }
 
   /**
+   * User.autodartsSession
+   */
+  export type User$autodartsSessionArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AutodartsSession
+     */
+    select?: AutodartsSessionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AutodartsSession
+     */
+    omit?: AutodartsSessionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AutodartsSessionInclude<ExtArgs> | null
+    where?: AutodartsSessionWhereInput
+  }
+
+  /**
    * User without action
    */
   export type UserDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -1904,6 +2075,1112 @@ export namespace Prisma {
      * Omit specific fields from the User
      */
     omit?: UserOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: UserInclude<ExtArgs> | null
+  }
+
+
+  /**
+   * Model AutodartsSession
+   */
+
+  export type AggregateAutodartsSession = {
+    _count: AutodartsSessionCountAggregateOutputType | null
+    _min: AutodartsSessionMinAggregateOutputType | null
+    _max: AutodartsSessionMaxAggregateOutputType | null
+  }
+
+  export type AutodartsSessionMinAggregateOutputType = {
+    userId: string | null
+    autodartsUserId: string | null
+    autodartsUsername: string | null
+    accessTokenEncrypted: string | null
+    accessTokenExpiresAt: Date | null
+    refreshTokenEncrypted: string | null
+    lastLoginAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type AutodartsSessionMaxAggregateOutputType = {
+    userId: string | null
+    autodartsUserId: string | null
+    autodartsUsername: string | null
+    accessTokenEncrypted: string | null
+    accessTokenExpiresAt: Date | null
+    refreshTokenEncrypted: string | null
+    lastLoginAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type AutodartsSessionCountAggregateOutputType = {
+    userId: number
+    autodartsUserId: number
+    autodartsUsername: number
+    accessTokenEncrypted: number
+    accessTokenExpiresAt: number
+    refreshTokenEncrypted: number
+    lastLoginAt: number
+    updatedAt: number
+    _all: number
+  }
+
+
+  export type AutodartsSessionMinAggregateInputType = {
+    userId?: true
+    autodartsUserId?: true
+    autodartsUsername?: true
+    accessTokenEncrypted?: true
+    accessTokenExpiresAt?: true
+    refreshTokenEncrypted?: true
+    lastLoginAt?: true
+    updatedAt?: true
+  }
+
+  export type AutodartsSessionMaxAggregateInputType = {
+    userId?: true
+    autodartsUserId?: true
+    autodartsUsername?: true
+    accessTokenEncrypted?: true
+    accessTokenExpiresAt?: true
+    refreshTokenEncrypted?: true
+    lastLoginAt?: true
+    updatedAt?: true
+  }
+
+  export type AutodartsSessionCountAggregateInputType = {
+    userId?: true
+    autodartsUserId?: true
+    autodartsUsername?: true
+    accessTokenEncrypted?: true
+    accessTokenExpiresAt?: true
+    refreshTokenEncrypted?: true
+    lastLoginAt?: true
+    updatedAt?: true
+    _all?: true
+  }
+
+  export type AutodartsSessionAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which AutodartsSession to aggregate.
+     */
+    where?: AutodartsSessionWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of AutodartsSessions to fetch.
+     */
+    orderBy?: AutodartsSessionOrderByWithRelationInput | AutodartsSessionOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: AutodartsSessionWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` AutodartsSessions from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` AutodartsSessions.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned AutodartsSessions
+    **/
+    _count?: true | AutodartsSessionCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: AutodartsSessionMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: AutodartsSessionMaxAggregateInputType
+  }
+
+  export type GetAutodartsSessionAggregateType<T extends AutodartsSessionAggregateArgs> = {
+        [P in keyof T & keyof AggregateAutodartsSession]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateAutodartsSession[P]>
+      : GetScalarType<T[P], AggregateAutodartsSession[P]>
+  }
+
+
+
+
+  export type AutodartsSessionGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: AutodartsSessionWhereInput
+    orderBy?: AutodartsSessionOrderByWithAggregationInput | AutodartsSessionOrderByWithAggregationInput[]
+    by: AutodartsSessionScalarFieldEnum[] | AutodartsSessionScalarFieldEnum
+    having?: AutodartsSessionScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: AutodartsSessionCountAggregateInputType | true
+    _min?: AutodartsSessionMinAggregateInputType
+    _max?: AutodartsSessionMaxAggregateInputType
+  }
+
+  export type AutodartsSessionGroupByOutputType = {
+    userId: string
+    autodartsUserId: string
+    autodartsUsername: string | null
+    accessTokenEncrypted: string
+    accessTokenExpiresAt: Date
+    refreshTokenEncrypted: string | null
+    lastLoginAt: Date
+    updatedAt: Date
+    _count: AutodartsSessionCountAggregateOutputType | null
+    _min: AutodartsSessionMinAggregateOutputType | null
+    _max: AutodartsSessionMaxAggregateOutputType | null
+  }
+
+  type GetAutodartsSessionGroupByPayload<T extends AutodartsSessionGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<AutodartsSessionGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof AutodartsSessionGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], AutodartsSessionGroupByOutputType[P]>
+            : GetScalarType<T[P], AutodartsSessionGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type AutodartsSessionSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    userId?: boolean
+    autodartsUserId?: boolean
+    autodartsUsername?: boolean
+    accessTokenEncrypted?: boolean
+    accessTokenExpiresAt?: boolean
+    refreshTokenEncrypted?: boolean
+    lastLoginAt?: boolean
+    updatedAt?: boolean
+    user?: boolean | UserDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["autodartsSession"]>
+
+  export type AutodartsSessionSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    userId?: boolean
+    autodartsUserId?: boolean
+    autodartsUsername?: boolean
+    accessTokenEncrypted?: boolean
+    accessTokenExpiresAt?: boolean
+    refreshTokenEncrypted?: boolean
+    lastLoginAt?: boolean
+    updatedAt?: boolean
+    user?: boolean | UserDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["autodartsSession"]>
+
+  export type AutodartsSessionSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    userId?: boolean
+    autodartsUserId?: boolean
+    autodartsUsername?: boolean
+    accessTokenEncrypted?: boolean
+    accessTokenExpiresAt?: boolean
+    refreshTokenEncrypted?: boolean
+    lastLoginAt?: boolean
+    updatedAt?: boolean
+    user?: boolean | UserDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["autodartsSession"]>
+
+  export type AutodartsSessionSelectScalar = {
+    userId?: boolean
+    autodartsUserId?: boolean
+    autodartsUsername?: boolean
+    accessTokenEncrypted?: boolean
+    accessTokenExpiresAt?: boolean
+    refreshTokenEncrypted?: boolean
+    lastLoginAt?: boolean
+    updatedAt?: boolean
+  }
+
+  export type AutodartsSessionOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"userId" | "autodartsUserId" | "autodartsUsername" | "accessTokenEncrypted" | "accessTokenExpiresAt" | "refreshTokenEncrypted" | "lastLoginAt" | "updatedAt", ExtArgs["result"]["autodartsSession"]>
+  export type AutodartsSessionInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    user?: boolean | UserDefaultArgs<ExtArgs>
+  }
+  export type AutodartsSessionIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    user?: boolean | UserDefaultArgs<ExtArgs>
+  }
+  export type AutodartsSessionIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    user?: boolean | UserDefaultArgs<ExtArgs>
+  }
+
+  export type $AutodartsSessionPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "AutodartsSession"
+    objects: {
+      user: Prisma.$UserPayload<ExtArgs>
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      userId: string
+      autodartsUserId: string
+      autodartsUsername: string | null
+      accessTokenEncrypted: string
+      accessTokenExpiresAt: Date
+      refreshTokenEncrypted: string | null
+      lastLoginAt: Date
+      updatedAt: Date
+    }, ExtArgs["result"]["autodartsSession"]>
+    composites: {}
+  }
+
+  type AutodartsSessionGetPayload<S extends boolean | null | undefined | AutodartsSessionDefaultArgs> = $Result.GetResult<Prisma.$AutodartsSessionPayload, S>
+
+  type AutodartsSessionCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<AutodartsSessionFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: AutodartsSessionCountAggregateInputType | true
+    }
+
+  export interface AutodartsSessionDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['AutodartsSession'], meta: { name: 'AutodartsSession' } }
+    /**
+     * Find zero or one AutodartsSession that matches the filter.
+     * @param {AutodartsSessionFindUniqueArgs} args - Arguments to find a AutodartsSession
+     * @example
+     * // Get one AutodartsSession
+     * const autodartsSession = await prisma.autodartsSession.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends AutodartsSessionFindUniqueArgs>(args: SelectSubset<T, AutodartsSessionFindUniqueArgs<ExtArgs>>): Prisma__AutodartsSessionClient<$Result.GetResult<Prisma.$AutodartsSessionPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one AutodartsSession that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {AutodartsSessionFindUniqueOrThrowArgs} args - Arguments to find a AutodartsSession
+     * @example
+     * // Get one AutodartsSession
+     * const autodartsSession = await prisma.autodartsSession.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends AutodartsSessionFindUniqueOrThrowArgs>(args: SelectSubset<T, AutodartsSessionFindUniqueOrThrowArgs<ExtArgs>>): Prisma__AutodartsSessionClient<$Result.GetResult<Prisma.$AutodartsSessionPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first AutodartsSession that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AutodartsSessionFindFirstArgs} args - Arguments to find a AutodartsSession
+     * @example
+     * // Get one AutodartsSession
+     * const autodartsSession = await prisma.autodartsSession.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends AutodartsSessionFindFirstArgs>(args?: SelectSubset<T, AutodartsSessionFindFirstArgs<ExtArgs>>): Prisma__AutodartsSessionClient<$Result.GetResult<Prisma.$AutodartsSessionPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first AutodartsSession that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AutodartsSessionFindFirstOrThrowArgs} args - Arguments to find a AutodartsSession
+     * @example
+     * // Get one AutodartsSession
+     * const autodartsSession = await prisma.autodartsSession.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends AutodartsSessionFindFirstOrThrowArgs>(args?: SelectSubset<T, AutodartsSessionFindFirstOrThrowArgs<ExtArgs>>): Prisma__AutodartsSessionClient<$Result.GetResult<Prisma.$AutodartsSessionPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more AutodartsSessions that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AutodartsSessionFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all AutodartsSessions
+     * const autodartsSessions = await prisma.autodartsSession.findMany()
+     * 
+     * // Get first 10 AutodartsSessions
+     * const autodartsSessions = await prisma.autodartsSession.findMany({ take: 10 })
+     * 
+     * // Only select the `userId`
+     * const autodartsSessionWithUserIdOnly = await prisma.autodartsSession.findMany({ select: { userId: true } })
+     * 
+     */
+    findMany<T extends AutodartsSessionFindManyArgs>(args?: SelectSubset<T, AutodartsSessionFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$AutodartsSessionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a AutodartsSession.
+     * @param {AutodartsSessionCreateArgs} args - Arguments to create a AutodartsSession.
+     * @example
+     * // Create one AutodartsSession
+     * const AutodartsSession = await prisma.autodartsSession.create({
+     *   data: {
+     *     // ... data to create a AutodartsSession
+     *   }
+     * })
+     * 
+     */
+    create<T extends AutodartsSessionCreateArgs>(args: SelectSubset<T, AutodartsSessionCreateArgs<ExtArgs>>): Prisma__AutodartsSessionClient<$Result.GetResult<Prisma.$AutodartsSessionPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many AutodartsSessions.
+     * @param {AutodartsSessionCreateManyArgs} args - Arguments to create many AutodartsSessions.
+     * @example
+     * // Create many AutodartsSessions
+     * const autodartsSession = await prisma.autodartsSession.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends AutodartsSessionCreateManyArgs>(args?: SelectSubset<T, AutodartsSessionCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many AutodartsSessions and returns the data saved in the database.
+     * @param {AutodartsSessionCreateManyAndReturnArgs} args - Arguments to create many AutodartsSessions.
+     * @example
+     * // Create many AutodartsSessions
+     * const autodartsSession = await prisma.autodartsSession.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many AutodartsSessions and only return the `userId`
+     * const autodartsSessionWithUserIdOnly = await prisma.autodartsSession.createManyAndReturn({
+     *   select: { userId: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends AutodartsSessionCreateManyAndReturnArgs>(args?: SelectSubset<T, AutodartsSessionCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$AutodartsSessionPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a AutodartsSession.
+     * @param {AutodartsSessionDeleteArgs} args - Arguments to delete one AutodartsSession.
+     * @example
+     * // Delete one AutodartsSession
+     * const AutodartsSession = await prisma.autodartsSession.delete({
+     *   where: {
+     *     // ... filter to delete one AutodartsSession
+     *   }
+     * })
+     * 
+     */
+    delete<T extends AutodartsSessionDeleteArgs>(args: SelectSubset<T, AutodartsSessionDeleteArgs<ExtArgs>>): Prisma__AutodartsSessionClient<$Result.GetResult<Prisma.$AutodartsSessionPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one AutodartsSession.
+     * @param {AutodartsSessionUpdateArgs} args - Arguments to update one AutodartsSession.
+     * @example
+     * // Update one AutodartsSession
+     * const autodartsSession = await prisma.autodartsSession.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends AutodartsSessionUpdateArgs>(args: SelectSubset<T, AutodartsSessionUpdateArgs<ExtArgs>>): Prisma__AutodartsSessionClient<$Result.GetResult<Prisma.$AutodartsSessionPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more AutodartsSessions.
+     * @param {AutodartsSessionDeleteManyArgs} args - Arguments to filter AutodartsSessions to delete.
+     * @example
+     * // Delete a few AutodartsSessions
+     * const { count } = await prisma.autodartsSession.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends AutodartsSessionDeleteManyArgs>(args?: SelectSubset<T, AutodartsSessionDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more AutodartsSessions.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AutodartsSessionUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many AutodartsSessions
+     * const autodartsSession = await prisma.autodartsSession.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends AutodartsSessionUpdateManyArgs>(args: SelectSubset<T, AutodartsSessionUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more AutodartsSessions and returns the data updated in the database.
+     * @param {AutodartsSessionUpdateManyAndReturnArgs} args - Arguments to update many AutodartsSessions.
+     * @example
+     * // Update many AutodartsSessions
+     * const autodartsSession = await prisma.autodartsSession.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more AutodartsSessions and only return the `userId`
+     * const autodartsSessionWithUserIdOnly = await prisma.autodartsSession.updateManyAndReturn({
+     *   select: { userId: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends AutodartsSessionUpdateManyAndReturnArgs>(args: SelectSubset<T, AutodartsSessionUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$AutodartsSessionPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one AutodartsSession.
+     * @param {AutodartsSessionUpsertArgs} args - Arguments to update or create a AutodartsSession.
+     * @example
+     * // Update or create a AutodartsSession
+     * const autodartsSession = await prisma.autodartsSession.upsert({
+     *   create: {
+     *     // ... data to create a AutodartsSession
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the AutodartsSession we want to update
+     *   }
+     * })
+     */
+    upsert<T extends AutodartsSessionUpsertArgs>(args: SelectSubset<T, AutodartsSessionUpsertArgs<ExtArgs>>): Prisma__AutodartsSessionClient<$Result.GetResult<Prisma.$AutodartsSessionPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of AutodartsSessions.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AutodartsSessionCountArgs} args - Arguments to filter AutodartsSessions to count.
+     * @example
+     * // Count the number of AutodartsSessions
+     * const count = await prisma.autodartsSession.count({
+     *   where: {
+     *     // ... the filter for the AutodartsSessions we want to count
+     *   }
+     * })
+    **/
+    count<T extends AutodartsSessionCountArgs>(
+      args?: Subset<T, AutodartsSessionCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], AutodartsSessionCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a AutodartsSession.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AutodartsSessionAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends AutodartsSessionAggregateArgs>(args: Subset<T, AutodartsSessionAggregateArgs>): Prisma.PrismaPromise<GetAutodartsSessionAggregateType<T>>
+
+    /**
+     * Group by AutodartsSession.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AutodartsSessionGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends AutodartsSessionGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: AutodartsSessionGroupByArgs['orderBy'] }
+        : { orderBy?: AutodartsSessionGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, AutodartsSessionGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetAutodartsSessionGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the AutodartsSession model
+   */
+  readonly fields: AutodartsSessionFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for AutodartsSession.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__AutodartsSessionClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    user<T extends UserDefaultArgs<ExtArgs> = {}>(args?: Subset<T, UserDefaultArgs<ExtArgs>>): Prisma__UserClient<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the AutodartsSession model
+   */
+  interface AutodartsSessionFieldRefs {
+    readonly userId: FieldRef<"AutodartsSession", 'String'>
+    readonly autodartsUserId: FieldRef<"AutodartsSession", 'String'>
+    readonly autodartsUsername: FieldRef<"AutodartsSession", 'String'>
+    readonly accessTokenEncrypted: FieldRef<"AutodartsSession", 'String'>
+    readonly accessTokenExpiresAt: FieldRef<"AutodartsSession", 'DateTime'>
+    readonly refreshTokenEncrypted: FieldRef<"AutodartsSession", 'String'>
+    readonly lastLoginAt: FieldRef<"AutodartsSession", 'DateTime'>
+    readonly updatedAt: FieldRef<"AutodartsSession", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * AutodartsSession findUnique
+   */
+  export type AutodartsSessionFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AutodartsSession
+     */
+    select?: AutodartsSessionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AutodartsSession
+     */
+    omit?: AutodartsSessionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AutodartsSessionInclude<ExtArgs> | null
+    /**
+     * Filter, which AutodartsSession to fetch.
+     */
+    where: AutodartsSessionWhereUniqueInput
+  }
+
+  /**
+   * AutodartsSession findUniqueOrThrow
+   */
+  export type AutodartsSessionFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AutodartsSession
+     */
+    select?: AutodartsSessionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AutodartsSession
+     */
+    omit?: AutodartsSessionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AutodartsSessionInclude<ExtArgs> | null
+    /**
+     * Filter, which AutodartsSession to fetch.
+     */
+    where: AutodartsSessionWhereUniqueInput
+  }
+
+  /**
+   * AutodartsSession findFirst
+   */
+  export type AutodartsSessionFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AutodartsSession
+     */
+    select?: AutodartsSessionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AutodartsSession
+     */
+    omit?: AutodartsSessionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AutodartsSessionInclude<ExtArgs> | null
+    /**
+     * Filter, which AutodartsSession to fetch.
+     */
+    where?: AutodartsSessionWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of AutodartsSessions to fetch.
+     */
+    orderBy?: AutodartsSessionOrderByWithRelationInput | AutodartsSessionOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for AutodartsSessions.
+     */
+    cursor?: AutodartsSessionWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` AutodartsSessions from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` AutodartsSessions.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of AutodartsSessions.
+     */
+    distinct?: AutodartsSessionScalarFieldEnum | AutodartsSessionScalarFieldEnum[]
+  }
+
+  /**
+   * AutodartsSession findFirstOrThrow
+   */
+  export type AutodartsSessionFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AutodartsSession
+     */
+    select?: AutodartsSessionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AutodartsSession
+     */
+    omit?: AutodartsSessionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AutodartsSessionInclude<ExtArgs> | null
+    /**
+     * Filter, which AutodartsSession to fetch.
+     */
+    where?: AutodartsSessionWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of AutodartsSessions to fetch.
+     */
+    orderBy?: AutodartsSessionOrderByWithRelationInput | AutodartsSessionOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for AutodartsSessions.
+     */
+    cursor?: AutodartsSessionWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` AutodartsSessions from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` AutodartsSessions.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of AutodartsSessions.
+     */
+    distinct?: AutodartsSessionScalarFieldEnum | AutodartsSessionScalarFieldEnum[]
+  }
+
+  /**
+   * AutodartsSession findMany
+   */
+  export type AutodartsSessionFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AutodartsSession
+     */
+    select?: AutodartsSessionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AutodartsSession
+     */
+    omit?: AutodartsSessionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AutodartsSessionInclude<ExtArgs> | null
+    /**
+     * Filter, which AutodartsSessions to fetch.
+     */
+    where?: AutodartsSessionWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of AutodartsSessions to fetch.
+     */
+    orderBy?: AutodartsSessionOrderByWithRelationInput | AutodartsSessionOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing AutodartsSessions.
+     */
+    cursor?: AutodartsSessionWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` AutodartsSessions from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` AutodartsSessions.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of AutodartsSessions.
+     */
+    distinct?: AutodartsSessionScalarFieldEnum | AutodartsSessionScalarFieldEnum[]
+  }
+
+  /**
+   * AutodartsSession create
+   */
+  export type AutodartsSessionCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AutodartsSession
+     */
+    select?: AutodartsSessionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AutodartsSession
+     */
+    omit?: AutodartsSessionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AutodartsSessionInclude<ExtArgs> | null
+    /**
+     * The data needed to create a AutodartsSession.
+     */
+    data: XOR<AutodartsSessionCreateInput, AutodartsSessionUncheckedCreateInput>
+  }
+
+  /**
+   * AutodartsSession createMany
+   */
+  export type AutodartsSessionCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many AutodartsSessions.
+     */
+    data: AutodartsSessionCreateManyInput | AutodartsSessionCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * AutodartsSession createManyAndReturn
+   */
+  export type AutodartsSessionCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AutodartsSession
+     */
+    select?: AutodartsSessionSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the AutodartsSession
+     */
+    omit?: AutodartsSessionOmit<ExtArgs> | null
+    /**
+     * The data used to create many AutodartsSessions.
+     */
+    data: AutodartsSessionCreateManyInput | AutodartsSessionCreateManyInput[]
+    skipDuplicates?: boolean
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AutodartsSessionIncludeCreateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * AutodartsSession update
+   */
+  export type AutodartsSessionUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AutodartsSession
+     */
+    select?: AutodartsSessionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AutodartsSession
+     */
+    omit?: AutodartsSessionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AutodartsSessionInclude<ExtArgs> | null
+    /**
+     * The data needed to update a AutodartsSession.
+     */
+    data: XOR<AutodartsSessionUpdateInput, AutodartsSessionUncheckedUpdateInput>
+    /**
+     * Choose, which AutodartsSession to update.
+     */
+    where: AutodartsSessionWhereUniqueInput
+  }
+
+  /**
+   * AutodartsSession updateMany
+   */
+  export type AutodartsSessionUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update AutodartsSessions.
+     */
+    data: XOR<AutodartsSessionUpdateManyMutationInput, AutodartsSessionUncheckedUpdateManyInput>
+    /**
+     * Filter which AutodartsSessions to update
+     */
+    where?: AutodartsSessionWhereInput
+    /**
+     * Limit how many AutodartsSessions to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * AutodartsSession updateManyAndReturn
+   */
+  export type AutodartsSessionUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AutodartsSession
+     */
+    select?: AutodartsSessionSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the AutodartsSession
+     */
+    omit?: AutodartsSessionOmit<ExtArgs> | null
+    /**
+     * The data used to update AutodartsSessions.
+     */
+    data: XOR<AutodartsSessionUpdateManyMutationInput, AutodartsSessionUncheckedUpdateManyInput>
+    /**
+     * Filter which AutodartsSessions to update
+     */
+    where?: AutodartsSessionWhereInput
+    /**
+     * Limit how many AutodartsSessions to update.
+     */
+    limit?: number
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AutodartsSessionIncludeUpdateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * AutodartsSession upsert
+   */
+  export type AutodartsSessionUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AutodartsSession
+     */
+    select?: AutodartsSessionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AutodartsSession
+     */
+    omit?: AutodartsSessionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AutodartsSessionInclude<ExtArgs> | null
+    /**
+     * The filter to search for the AutodartsSession to update in case it exists.
+     */
+    where: AutodartsSessionWhereUniqueInput
+    /**
+     * In case the AutodartsSession found by the `where` argument doesn't exist, create a new AutodartsSession with this data.
+     */
+    create: XOR<AutodartsSessionCreateInput, AutodartsSessionUncheckedCreateInput>
+    /**
+     * In case the AutodartsSession was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<AutodartsSessionUpdateInput, AutodartsSessionUncheckedUpdateInput>
+  }
+
+  /**
+   * AutodartsSession delete
+   */
+  export type AutodartsSessionDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AutodartsSession
+     */
+    select?: AutodartsSessionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AutodartsSession
+     */
+    omit?: AutodartsSessionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AutodartsSessionInclude<ExtArgs> | null
+    /**
+     * Filter which AutodartsSession to delete.
+     */
+    where: AutodartsSessionWhereUniqueInput
+  }
+
+  /**
+   * AutodartsSession deleteMany
+   */
+  export type AutodartsSessionDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which AutodartsSessions to delete
+     */
+    where?: AutodartsSessionWhereInput
+    /**
+     * Limit how many AutodartsSessions to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * AutodartsSession without action
+   */
+  export type AutodartsSessionDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AutodartsSession
+     */
+    select?: AutodartsSessionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AutodartsSession
+     */
+    omit?: AutodartsSessionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AutodartsSessionInclude<ExtArgs> | null
   }
 
 
@@ -1926,11 +3203,26 @@ export namespace Prisma {
     name: 'name',
     email: 'email',
     passwordHash: 'passwordHash',
+    passwordEncrypted: 'passwordEncrypted',
     createdAt: 'createdAt',
     updatedAt: 'updatedAt'
   };
 
   export type UserScalarFieldEnum = (typeof UserScalarFieldEnum)[keyof typeof UserScalarFieldEnum]
+
+
+  export const AutodartsSessionScalarFieldEnum: {
+    userId: 'userId',
+    autodartsUserId: 'autodartsUserId',
+    autodartsUsername: 'autodartsUsername',
+    accessTokenEncrypted: 'accessTokenEncrypted',
+    accessTokenExpiresAt: 'accessTokenExpiresAt',
+    refreshTokenEncrypted: 'refreshTokenEncrypted',
+    lastLoginAt: 'lastLoginAt',
+    updatedAt: 'updatedAt'
+  };
+
+  export type AutodartsSessionScalarFieldEnum = (typeof AutodartsSessionScalarFieldEnum)[keyof typeof AutodartsSessionScalarFieldEnum]
 
 
   export const SortOrder: {
@@ -1947,6 +3239,14 @@ export namespace Prisma {
   };
 
   export type QueryMode = (typeof QueryMode)[keyof typeof QueryMode]
+
+
+  export const NullsOrder: {
+    first: 'first',
+    last: 'last'
+  };
+
+  export type NullsOrder = (typeof NullsOrder)[keyof typeof NullsOrder]
 
 
   /**
@@ -2007,8 +3307,10 @@ export namespace Prisma {
     name?: StringFilter<"User"> | string
     email?: StringFilter<"User"> | string
     passwordHash?: StringFilter<"User"> | string
+    passwordEncrypted?: StringNullableFilter<"User"> | string | null
     createdAt?: DateTimeFilter<"User"> | Date | string
     updatedAt?: DateTimeFilter<"User"> | Date | string
+    autodartsSession?: XOR<AutodartsSessionNullableScalarRelationFilter, AutodartsSessionWhereInput> | null
   }
 
   export type UserOrderByWithRelationInput = {
@@ -2016,8 +3318,10 @@ export namespace Prisma {
     name?: SortOrder
     email?: SortOrder
     passwordHash?: SortOrder
+    passwordEncrypted?: SortOrderInput | SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
+    autodartsSession?: AutodartsSessionOrderByWithRelationInput
   }
 
   export type UserWhereUniqueInput = Prisma.AtLeast<{
@@ -2028,8 +3332,10 @@ export namespace Prisma {
     NOT?: UserWhereInput | UserWhereInput[]
     name?: StringFilter<"User"> | string
     passwordHash?: StringFilter<"User"> | string
+    passwordEncrypted?: StringNullableFilter<"User"> | string | null
     createdAt?: DateTimeFilter<"User"> | Date | string
     updatedAt?: DateTimeFilter<"User"> | Date | string
+    autodartsSession?: XOR<AutodartsSessionNullableScalarRelationFilter, AutodartsSessionWhereInput> | null
   }, "id" | "email">
 
   export type UserOrderByWithAggregationInput = {
@@ -2037,6 +3343,7 @@ export namespace Prisma {
     name?: SortOrder
     email?: SortOrder
     passwordHash?: SortOrder
+    passwordEncrypted?: SortOrderInput | SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
     _count?: UserCountOrderByAggregateInput
@@ -2052,8 +3359,79 @@ export namespace Prisma {
     name?: StringWithAggregatesFilter<"User"> | string
     email?: StringWithAggregatesFilter<"User"> | string
     passwordHash?: StringWithAggregatesFilter<"User"> | string
+    passwordEncrypted?: StringNullableWithAggregatesFilter<"User"> | string | null
     createdAt?: DateTimeWithAggregatesFilter<"User"> | Date | string
     updatedAt?: DateTimeWithAggregatesFilter<"User"> | Date | string
+  }
+
+  export type AutodartsSessionWhereInput = {
+    AND?: AutodartsSessionWhereInput | AutodartsSessionWhereInput[]
+    OR?: AutodartsSessionWhereInput[]
+    NOT?: AutodartsSessionWhereInput | AutodartsSessionWhereInput[]
+    userId?: UuidFilter<"AutodartsSession"> | string
+    autodartsUserId?: StringFilter<"AutodartsSession"> | string
+    autodartsUsername?: StringNullableFilter<"AutodartsSession"> | string | null
+    accessTokenEncrypted?: StringFilter<"AutodartsSession"> | string
+    accessTokenExpiresAt?: DateTimeFilter<"AutodartsSession"> | Date | string
+    refreshTokenEncrypted?: StringNullableFilter<"AutodartsSession"> | string | null
+    lastLoginAt?: DateTimeFilter<"AutodartsSession"> | Date | string
+    updatedAt?: DateTimeFilter<"AutodartsSession"> | Date | string
+    user?: XOR<UserScalarRelationFilter, UserWhereInput>
+  }
+
+  export type AutodartsSessionOrderByWithRelationInput = {
+    userId?: SortOrder
+    autodartsUserId?: SortOrder
+    autodartsUsername?: SortOrderInput | SortOrder
+    accessTokenEncrypted?: SortOrder
+    accessTokenExpiresAt?: SortOrder
+    refreshTokenEncrypted?: SortOrderInput | SortOrder
+    lastLoginAt?: SortOrder
+    updatedAt?: SortOrder
+    user?: UserOrderByWithRelationInput
+  }
+
+  export type AutodartsSessionWhereUniqueInput = Prisma.AtLeast<{
+    userId?: string
+    AND?: AutodartsSessionWhereInput | AutodartsSessionWhereInput[]
+    OR?: AutodartsSessionWhereInput[]
+    NOT?: AutodartsSessionWhereInput | AutodartsSessionWhereInput[]
+    autodartsUserId?: StringFilter<"AutodartsSession"> | string
+    autodartsUsername?: StringNullableFilter<"AutodartsSession"> | string | null
+    accessTokenEncrypted?: StringFilter<"AutodartsSession"> | string
+    accessTokenExpiresAt?: DateTimeFilter<"AutodartsSession"> | Date | string
+    refreshTokenEncrypted?: StringNullableFilter<"AutodartsSession"> | string | null
+    lastLoginAt?: DateTimeFilter<"AutodartsSession"> | Date | string
+    updatedAt?: DateTimeFilter<"AutodartsSession"> | Date | string
+    user?: XOR<UserScalarRelationFilter, UserWhereInput>
+  }, "userId">
+
+  export type AutodartsSessionOrderByWithAggregationInput = {
+    userId?: SortOrder
+    autodartsUserId?: SortOrder
+    autodartsUsername?: SortOrderInput | SortOrder
+    accessTokenEncrypted?: SortOrder
+    accessTokenExpiresAt?: SortOrder
+    refreshTokenEncrypted?: SortOrderInput | SortOrder
+    lastLoginAt?: SortOrder
+    updatedAt?: SortOrder
+    _count?: AutodartsSessionCountOrderByAggregateInput
+    _max?: AutodartsSessionMaxOrderByAggregateInput
+    _min?: AutodartsSessionMinOrderByAggregateInput
+  }
+
+  export type AutodartsSessionScalarWhereWithAggregatesInput = {
+    AND?: AutodartsSessionScalarWhereWithAggregatesInput | AutodartsSessionScalarWhereWithAggregatesInput[]
+    OR?: AutodartsSessionScalarWhereWithAggregatesInput[]
+    NOT?: AutodartsSessionScalarWhereWithAggregatesInput | AutodartsSessionScalarWhereWithAggregatesInput[]
+    userId?: UuidWithAggregatesFilter<"AutodartsSession"> | string
+    autodartsUserId?: StringWithAggregatesFilter<"AutodartsSession"> | string
+    autodartsUsername?: StringNullableWithAggregatesFilter<"AutodartsSession"> | string | null
+    accessTokenEncrypted?: StringWithAggregatesFilter<"AutodartsSession"> | string
+    accessTokenExpiresAt?: DateTimeWithAggregatesFilter<"AutodartsSession"> | Date | string
+    refreshTokenEncrypted?: StringNullableWithAggregatesFilter<"AutodartsSession"> | string | null
+    lastLoginAt?: DateTimeWithAggregatesFilter<"AutodartsSession"> | Date | string
+    updatedAt?: DateTimeWithAggregatesFilter<"AutodartsSession"> | Date | string
   }
 
   export type UserCreateInput = {
@@ -2061,8 +3439,10 @@ export namespace Prisma {
     name: string
     email: string
     passwordHash: string
+    passwordEncrypted?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
+    autodartsSession?: AutodartsSessionCreateNestedOneWithoutUserInput
   }
 
   export type UserUncheckedCreateInput = {
@@ -2070,8 +3450,10 @@ export namespace Prisma {
     name: string
     email: string
     passwordHash: string
+    passwordEncrypted?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
+    autodartsSession?: AutodartsSessionUncheckedCreateNestedOneWithoutUserInput
   }
 
   export type UserUpdateInput = {
@@ -2079,8 +3461,10 @@ export namespace Prisma {
     name?: StringFieldUpdateOperationsInput | string
     email?: StringFieldUpdateOperationsInput | string
     passwordHash?: StringFieldUpdateOperationsInput | string
+    passwordEncrypted?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    autodartsSession?: AutodartsSessionUpdateOneWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateInput = {
@@ -2088,8 +3472,10 @@ export namespace Prisma {
     name?: StringFieldUpdateOperationsInput | string
     email?: StringFieldUpdateOperationsInput | string
     passwordHash?: StringFieldUpdateOperationsInput | string
+    passwordEncrypted?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    autodartsSession?: AutodartsSessionUncheckedUpdateOneWithoutUserNestedInput
   }
 
   export type UserCreateManyInput = {
@@ -2097,6 +3483,7 @@ export namespace Prisma {
     name: string
     email: string
     passwordHash: string
+    passwordEncrypted?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -2106,6 +3493,7 @@ export namespace Prisma {
     name?: StringFieldUpdateOperationsInput | string
     email?: StringFieldUpdateOperationsInput | string
     passwordHash?: StringFieldUpdateOperationsInput | string
+    passwordEncrypted?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -2115,7 +3503,84 @@ export namespace Prisma {
     name?: StringFieldUpdateOperationsInput | string
     email?: StringFieldUpdateOperationsInput | string
     passwordHash?: StringFieldUpdateOperationsInput | string
+    passwordEncrypted?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type AutodartsSessionCreateInput = {
+    autodartsUserId: string
+    autodartsUsername?: string | null
+    accessTokenEncrypted: string
+    accessTokenExpiresAt: Date | string
+    refreshTokenEncrypted?: string | null
+    lastLoginAt?: Date | string
+    updatedAt?: Date | string
+    user: UserCreateNestedOneWithoutAutodartsSessionInput
+  }
+
+  export type AutodartsSessionUncheckedCreateInput = {
+    userId: string
+    autodartsUserId: string
+    autodartsUsername?: string | null
+    accessTokenEncrypted: string
+    accessTokenExpiresAt: Date | string
+    refreshTokenEncrypted?: string | null
+    lastLoginAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type AutodartsSessionUpdateInput = {
+    autodartsUserId?: StringFieldUpdateOperationsInput | string
+    autodartsUsername?: NullableStringFieldUpdateOperationsInput | string | null
+    accessTokenEncrypted?: StringFieldUpdateOperationsInput | string
+    accessTokenExpiresAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    refreshTokenEncrypted?: NullableStringFieldUpdateOperationsInput | string | null
+    lastLoginAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    user?: UserUpdateOneRequiredWithoutAutodartsSessionNestedInput
+  }
+
+  export type AutodartsSessionUncheckedUpdateInput = {
+    userId?: StringFieldUpdateOperationsInput | string
+    autodartsUserId?: StringFieldUpdateOperationsInput | string
+    autodartsUsername?: NullableStringFieldUpdateOperationsInput | string | null
+    accessTokenEncrypted?: StringFieldUpdateOperationsInput | string
+    accessTokenExpiresAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    refreshTokenEncrypted?: NullableStringFieldUpdateOperationsInput | string | null
+    lastLoginAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type AutodartsSessionCreateManyInput = {
+    userId: string
+    autodartsUserId: string
+    autodartsUsername?: string | null
+    accessTokenEncrypted: string
+    accessTokenExpiresAt: Date | string
+    refreshTokenEncrypted?: string | null
+    lastLoginAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type AutodartsSessionUpdateManyMutationInput = {
+    autodartsUserId?: StringFieldUpdateOperationsInput | string
+    autodartsUsername?: NullableStringFieldUpdateOperationsInput | string | null
+    accessTokenEncrypted?: StringFieldUpdateOperationsInput | string
+    accessTokenExpiresAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    refreshTokenEncrypted?: NullableStringFieldUpdateOperationsInput | string | null
+    lastLoginAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type AutodartsSessionUncheckedUpdateManyInput = {
+    userId?: StringFieldUpdateOperationsInput | string
+    autodartsUserId?: StringFieldUpdateOperationsInput | string
+    autodartsUsername?: NullableStringFieldUpdateOperationsInput | string | null
+    accessTokenEncrypted?: StringFieldUpdateOperationsInput | string
+    accessTokenExpiresAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    refreshTokenEncrypted?: NullableStringFieldUpdateOperationsInput | string | null
+    lastLoginAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
@@ -2146,6 +3611,21 @@ export namespace Prisma {
     not?: NestedStringFilter<$PrismaModel> | string
   }
 
+  export type StringNullableFilter<$PrismaModel = never> = {
+    equals?: string | StringFieldRefInput<$PrismaModel> | null
+    in?: string[] | ListStringFieldRefInput<$PrismaModel> | null
+    notIn?: string[] | ListStringFieldRefInput<$PrismaModel> | null
+    lt?: string | StringFieldRefInput<$PrismaModel>
+    lte?: string | StringFieldRefInput<$PrismaModel>
+    gt?: string | StringFieldRefInput<$PrismaModel>
+    gte?: string | StringFieldRefInput<$PrismaModel>
+    contains?: string | StringFieldRefInput<$PrismaModel>
+    startsWith?: string | StringFieldRefInput<$PrismaModel>
+    endsWith?: string | StringFieldRefInput<$PrismaModel>
+    mode?: QueryMode
+    not?: NestedStringNullableFilter<$PrismaModel> | string | null
+  }
+
   export type DateTimeFilter<$PrismaModel = never> = {
     equals?: Date | string | DateTimeFieldRefInput<$PrismaModel>
     in?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel>
@@ -2157,11 +3637,22 @@ export namespace Prisma {
     not?: NestedDateTimeFilter<$PrismaModel> | Date | string
   }
 
+  export type AutodartsSessionNullableScalarRelationFilter = {
+    is?: AutodartsSessionWhereInput | null
+    isNot?: AutodartsSessionWhereInput | null
+  }
+
+  export type SortOrderInput = {
+    sort: SortOrder
+    nulls?: NullsOrder
+  }
+
   export type UserCountOrderByAggregateInput = {
     id?: SortOrder
     name?: SortOrder
     email?: SortOrder
     passwordHash?: SortOrder
+    passwordEncrypted?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
   }
@@ -2171,6 +3662,7 @@ export namespace Prisma {
     name?: SortOrder
     email?: SortOrder
     passwordHash?: SortOrder
+    passwordEncrypted?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
   }
@@ -2180,6 +3672,7 @@ export namespace Prisma {
     name?: SortOrder
     email?: SortOrder
     passwordHash?: SortOrder
+    passwordEncrypted?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
   }
@@ -2217,6 +3710,24 @@ export namespace Prisma {
     _max?: NestedStringFilter<$PrismaModel>
   }
 
+  export type StringNullableWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: string | StringFieldRefInput<$PrismaModel> | null
+    in?: string[] | ListStringFieldRefInput<$PrismaModel> | null
+    notIn?: string[] | ListStringFieldRefInput<$PrismaModel> | null
+    lt?: string | StringFieldRefInput<$PrismaModel>
+    lte?: string | StringFieldRefInput<$PrismaModel>
+    gt?: string | StringFieldRefInput<$PrismaModel>
+    gte?: string | StringFieldRefInput<$PrismaModel>
+    contains?: string | StringFieldRefInput<$PrismaModel>
+    startsWith?: string | StringFieldRefInput<$PrismaModel>
+    endsWith?: string | StringFieldRefInput<$PrismaModel>
+    mode?: QueryMode
+    not?: NestedStringNullableWithAggregatesFilter<$PrismaModel> | string | null
+    _count?: NestedIntNullableFilter<$PrismaModel>
+    _min?: NestedStringNullableFilter<$PrismaModel>
+    _max?: NestedStringNullableFilter<$PrismaModel>
+  }
+
   export type DateTimeWithAggregatesFilter<$PrismaModel = never> = {
     equals?: Date | string | DateTimeFieldRefInput<$PrismaModel>
     in?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel>
@@ -2231,12 +3742,100 @@ export namespace Prisma {
     _max?: NestedDateTimeFilter<$PrismaModel>
   }
 
+  export type UserScalarRelationFilter = {
+    is?: UserWhereInput
+    isNot?: UserWhereInput
+  }
+
+  export type AutodartsSessionCountOrderByAggregateInput = {
+    userId?: SortOrder
+    autodartsUserId?: SortOrder
+    autodartsUsername?: SortOrder
+    accessTokenEncrypted?: SortOrder
+    accessTokenExpiresAt?: SortOrder
+    refreshTokenEncrypted?: SortOrder
+    lastLoginAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type AutodartsSessionMaxOrderByAggregateInput = {
+    userId?: SortOrder
+    autodartsUserId?: SortOrder
+    autodartsUsername?: SortOrder
+    accessTokenEncrypted?: SortOrder
+    accessTokenExpiresAt?: SortOrder
+    refreshTokenEncrypted?: SortOrder
+    lastLoginAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type AutodartsSessionMinOrderByAggregateInput = {
+    userId?: SortOrder
+    autodartsUserId?: SortOrder
+    autodartsUsername?: SortOrder
+    accessTokenEncrypted?: SortOrder
+    accessTokenExpiresAt?: SortOrder
+    refreshTokenEncrypted?: SortOrder
+    lastLoginAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type AutodartsSessionCreateNestedOneWithoutUserInput = {
+    create?: XOR<AutodartsSessionCreateWithoutUserInput, AutodartsSessionUncheckedCreateWithoutUserInput>
+    connectOrCreate?: AutodartsSessionCreateOrConnectWithoutUserInput
+    connect?: AutodartsSessionWhereUniqueInput
+  }
+
+  export type AutodartsSessionUncheckedCreateNestedOneWithoutUserInput = {
+    create?: XOR<AutodartsSessionCreateWithoutUserInput, AutodartsSessionUncheckedCreateWithoutUserInput>
+    connectOrCreate?: AutodartsSessionCreateOrConnectWithoutUserInput
+    connect?: AutodartsSessionWhereUniqueInput
+  }
+
   export type StringFieldUpdateOperationsInput = {
     set?: string
   }
 
+  export type NullableStringFieldUpdateOperationsInput = {
+    set?: string | null
+  }
+
   export type DateTimeFieldUpdateOperationsInput = {
     set?: Date | string
+  }
+
+  export type AutodartsSessionUpdateOneWithoutUserNestedInput = {
+    create?: XOR<AutodartsSessionCreateWithoutUserInput, AutodartsSessionUncheckedCreateWithoutUserInput>
+    connectOrCreate?: AutodartsSessionCreateOrConnectWithoutUserInput
+    upsert?: AutodartsSessionUpsertWithoutUserInput
+    disconnect?: AutodartsSessionWhereInput | boolean
+    delete?: AutodartsSessionWhereInput | boolean
+    connect?: AutodartsSessionWhereUniqueInput
+    update?: XOR<XOR<AutodartsSessionUpdateToOneWithWhereWithoutUserInput, AutodartsSessionUpdateWithoutUserInput>, AutodartsSessionUncheckedUpdateWithoutUserInput>
+  }
+
+  export type AutodartsSessionUncheckedUpdateOneWithoutUserNestedInput = {
+    create?: XOR<AutodartsSessionCreateWithoutUserInput, AutodartsSessionUncheckedCreateWithoutUserInput>
+    connectOrCreate?: AutodartsSessionCreateOrConnectWithoutUserInput
+    upsert?: AutodartsSessionUpsertWithoutUserInput
+    disconnect?: AutodartsSessionWhereInput | boolean
+    delete?: AutodartsSessionWhereInput | boolean
+    connect?: AutodartsSessionWhereUniqueInput
+    update?: XOR<XOR<AutodartsSessionUpdateToOneWithWhereWithoutUserInput, AutodartsSessionUpdateWithoutUserInput>, AutodartsSessionUncheckedUpdateWithoutUserInput>
+  }
+
+  export type UserCreateNestedOneWithoutAutodartsSessionInput = {
+    create?: XOR<UserCreateWithoutAutodartsSessionInput, UserUncheckedCreateWithoutAutodartsSessionInput>
+    connectOrCreate?: UserCreateOrConnectWithoutAutodartsSessionInput
+    connect?: UserWhereUniqueInput
+  }
+
+  export type UserUpdateOneRequiredWithoutAutodartsSessionNestedInput = {
+    create?: XOR<UserCreateWithoutAutodartsSessionInput, UserUncheckedCreateWithoutAutodartsSessionInput>
+    connectOrCreate?: UserCreateOrConnectWithoutAutodartsSessionInput
+    upsert?: UserUpsertWithoutAutodartsSessionInput
+    connect?: UserWhereUniqueInput
+    update?: XOR<XOR<UserUpdateToOneWithWhereWithoutAutodartsSessionInput, UserUpdateWithoutAutodartsSessionInput>, UserUncheckedUpdateWithoutAutodartsSessionInput>
   }
 
   export type NestedUuidFilter<$PrismaModel = never> = {
@@ -2262,6 +3861,20 @@ export namespace Prisma {
     startsWith?: string | StringFieldRefInput<$PrismaModel>
     endsWith?: string | StringFieldRefInput<$PrismaModel>
     not?: NestedStringFilter<$PrismaModel> | string
+  }
+
+  export type NestedStringNullableFilter<$PrismaModel = never> = {
+    equals?: string | StringFieldRefInput<$PrismaModel> | null
+    in?: string[] | ListStringFieldRefInput<$PrismaModel> | null
+    notIn?: string[] | ListStringFieldRefInput<$PrismaModel> | null
+    lt?: string | StringFieldRefInput<$PrismaModel>
+    lte?: string | StringFieldRefInput<$PrismaModel>
+    gt?: string | StringFieldRefInput<$PrismaModel>
+    gte?: string | StringFieldRefInput<$PrismaModel>
+    contains?: string | StringFieldRefInput<$PrismaModel>
+    startsWith?: string | StringFieldRefInput<$PrismaModel>
+    endsWith?: string | StringFieldRefInput<$PrismaModel>
+    not?: NestedStringNullableFilter<$PrismaModel> | string | null
   }
 
   export type NestedDateTimeFilter<$PrismaModel = never> = {
@@ -2317,6 +3930,34 @@ export namespace Prisma {
     _max?: NestedStringFilter<$PrismaModel>
   }
 
+  export type NestedStringNullableWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: string | StringFieldRefInput<$PrismaModel> | null
+    in?: string[] | ListStringFieldRefInput<$PrismaModel> | null
+    notIn?: string[] | ListStringFieldRefInput<$PrismaModel> | null
+    lt?: string | StringFieldRefInput<$PrismaModel>
+    lte?: string | StringFieldRefInput<$PrismaModel>
+    gt?: string | StringFieldRefInput<$PrismaModel>
+    gte?: string | StringFieldRefInput<$PrismaModel>
+    contains?: string | StringFieldRefInput<$PrismaModel>
+    startsWith?: string | StringFieldRefInput<$PrismaModel>
+    endsWith?: string | StringFieldRefInput<$PrismaModel>
+    not?: NestedStringNullableWithAggregatesFilter<$PrismaModel> | string | null
+    _count?: NestedIntNullableFilter<$PrismaModel>
+    _min?: NestedStringNullableFilter<$PrismaModel>
+    _max?: NestedStringNullableFilter<$PrismaModel>
+  }
+
+  export type NestedIntNullableFilter<$PrismaModel = never> = {
+    equals?: number | IntFieldRefInput<$PrismaModel> | null
+    in?: number[] | ListIntFieldRefInput<$PrismaModel> | null
+    notIn?: number[] | ListIntFieldRefInput<$PrismaModel> | null
+    lt?: number | IntFieldRefInput<$PrismaModel>
+    lte?: number | IntFieldRefInput<$PrismaModel>
+    gt?: number | IntFieldRefInput<$PrismaModel>
+    gte?: number | IntFieldRefInput<$PrismaModel>
+    not?: NestedIntNullableFilter<$PrismaModel> | number | null
+  }
+
   export type NestedDateTimeWithAggregatesFilter<$PrismaModel = never> = {
     equals?: Date | string | DateTimeFieldRefInput<$PrismaModel>
     in?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel>
@@ -2329,6 +3970,118 @@ export namespace Prisma {
     _count?: NestedIntFilter<$PrismaModel>
     _min?: NestedDateTimeFilter<$PrismaModel>
     _max?: NestedDateTimeFilter<$PrismaModel>
+  }
+
+  export type AutodartsSessionCreateWithoutUserInput = {
+    autodartsUserId: string
+    autodartsUsername?: string | null
+    accessTokenEncrypted: string
+    accessTokenExpiresAt: Date | string
+    refreshTokenEncrypted?: string | null
+    lastLoginAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type AutodartsSessionUncheckedCreateWithoutUserInput = {
+    autodartsUserId: string
+    autodartsUsername?: string | null
+    accessTokenEncrypted: string
+    accessTokenExpiresAt: Date | string
+    refreshTokenEncrypted?: string | null
+    lastLoginAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type AutodartsSessionCreateOrConnectWithoutUserInput = {
+    where: AutodartsSessionWhereUniqueInput
+    create: XOR<AutodartsSessionCreateWithoutUserInput, AutodartsSessionUncheckedCreateWithoutUserInput>
+  }
+
+  export type AutodartsSessionUpsertWithoutUserInput = {
+    update: XOR<AutodartsSessionUpdateWithoutUserInput, AutodartsSessionUncheckedUpdateWithoutUserInput>
+    create: XOR<AutodartsSessionCreateWithoutUserInput, AutodartsSessionUncheckedCreateWithoutUserInput>
+    where?: AutodartsSessionWhereInput
+  }
+
+  export type AutodartsSessionUpdateToOneWithWhereWithoutUserInput = {
+    where?: AutodartsSessionWhereInput
+    data: XOR<AutodartsSessionUpdateWithoutUserInput, AutodartsSessionUncheckedUpdateWithoutUserInput>
+  }
+
+  export type AutodartsSessionUpdateWithoutUserInput = {
+    autodartsUserId?: StringFieldUpdateOperationsInput | string
+    autodartsUsername?: NullableStringFieldUpdateOperationsInput | string | null
+    accessTokenEncrypted?: StringFieldUpdateOperationsInput | string
+    accessTokenExpiresAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    refreshTokenEncrypted?: NullableStringFieldUpdateOperationsInput | string | null
+    lastLoginAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type AutodartsSessionUncheckedUpdateWithoutUserInput = {
+    autodartsUserId?: StringFieldUpdateOperationsInput | string
+    autodartsUsername?: NullableStringFieldUpdateOperationsInput | string | null
+    accessTokenEncrypted?: StringFieldUpdateOperationsInput | string
+    accessTokenExpiresAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    refreshTokenEncrypted?: NullableStringFieldUpdateOperationsInput | string | null
+    lastLoginAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type UserCreateWithoutAutodartsSessionInput = {
+    id?: string
+    name: string
+    email: string
+    passwordHash: string
+    passwordEncrypted?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type UserUncheckedCreateWithoutAutodartsSessionInput = {
+    id?: string
+    name: string
+    email: string
+    passwordHash: string
+    passwordEncrypted?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type UserCreateOrConnectWithoutAutodartsSessionInput = {
+    where: UserWhereUniqueInput
+    create: XOR<UserCreateWithoutAutodartsSessionInput, UserUncheckedCreateWithoutAutodartsSessionInput>
+  }
+
+  export type UserUpsertWithoutAutodartsSessionInput = {
+    update: XOR<UserUpdateWithoutAutodartsSessionInput, UserUncheckedUpdateWithoutAutodartsSessionInput>
+    create: XOR<UserCreateWithoutAutodartsSessionInput, UserUncheckedCreateWithoutAutodartsSessionInput>
+    where?: UserWhereInput
+  }
+
+  export type UserUpdateToOneWithWhereWithoutAutodartsSessionInput = {
+    where?: UserWhereInput
+    data: XOR<UserUpdateWithoutAutodartsSessionInput, UserUncheckedUpdateWithoutAutodartsSessionInput>
+  }
+
+  export type UserUpdateWithoutAutodartsSessionInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    email?: StringFieldUpdateOperationsInput | string
+    passwordHash?: StringFieldUpdateOperationsInput | string
+    passwordEncrypted?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type UserUncheckedUpdateWithoutAutodartsSessionInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    email?: StringFieldUpdateOperationsInput | string
+    passwordHash?: StringFieldUpdateOperationsInput | string
+    passwordEncrypted?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
 
