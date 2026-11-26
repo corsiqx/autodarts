@@ -247,3 +247,137 @@ export function toPlayableTournaments(
         new Date(a.startsAt).getTime() - new Date(b.startsAt).getTime(),
     );
 }
+
+/** Where a board's cameras can be watched. */
+export interface BoardCamera {
+  boardId: string;
+  name: string;
+  connected: boolean;
+  cams: number;
+  /** Board Manager on the local network, e.g. `http://192.168.1.50:3180` (MJPEG streams). */
+  localUrl: string | null;
+  /** Same Board Manager over TLS via `*.autodarts.direct`, usable from https pages. */
+  directUrl: string | null;
+  /** Per-camera calibration for straightening the picture; `null` when the board has none. */
+  calibration: BoardCalibration | null;
+}
+
+const LOCAL_ADDRESS = /^(https?):\/\/(\d{1,3}(?:\.\d{1,3}){3}):(\d{2,5})\/?$/;
+
+/**
+ * `ip` may hold two addresses separated by a comma (http and https). The https one becomes
+ * `https://192-168-1-50.<boardId>.autodarts.direct:<port>` like on play.autodarts.com.
+ */
+export function toBoardCamera(
+  board: unknown,
+  numCams: unknown,
+  calibration: BoardCalibration | null = null,
+): BoardCamera | null {
+  if (!isObject(board)) {
+    return null;
+  }
+  const boardId = idOf(board.id);
+  const state = isObject(board.state) ? board.state : {};
+  const addresses = (str(board.ip) ?? '')
+    .split(',')
+    .map((part) => LOCAL_ADDRESS.exec(part.trim()))
+    .filter((match): match is RegExpExecArray => match !== null);
+  const http = addresses.find((m) => m[1] === 'http');
+  const https = addresses.find((m) => m[1] === 'https');
+  const counted = isObject(numCams)
+    ? (num(numCams.numCams) ?? num(numCams.count) ?? num(numCams.cams))
+    : num(numCams);
+  const fallbackCams = str(board.type) === 'vantage' ? 3 : 1;
+  return {
+    boardId,
+    name: str(board.name) ?? 'Board',
+    connected: state.connected === true,
+    cams: counted && counted > 0 ? Math.min(counted, 6) : fallbackCams,
+    localUrl: http ? `http://${http[2]}:${http[3]}` : null,
+    directUrl: https
+      ? `https://${https[2].replace(/\./g, '-')}.${boardId}.autodarts.direct:${https[3]}`
+      : null,
+    calibration,
+  };
+}
+
+/** Relative image path from `img/live` → absolute URL on the image host. */
+export function toSnapshotUrl(payload: unknown): string | null {
+  const url = isObject(payload) ? str(payload.url) : null;
+  if (!url || !url.startsWith('/')) {
+    return null;
+  }
+  return `https://boards.ws.autodarts.com${url}`;
+}
+
+type Point = [number, number];
+
+/** Calibration of one camera: bull and 20 points per ring, in camera pixels. */
+export interface CamCalibration {
+  bull: Point;
+  doubleOuter: Point[];
+  doubleInner: Point[];
+  trebleOuter: Point[];
+  trebleInner: Point[];
+}
+
+export interface BoardCalibration {
+  /** Camera resolution the points refer to. */
+  width: number;
+  height: number;
+  cams: Record<string, CamCalibration>;
+}
+
+const point = (value: unknown): Point | null => {
+  const [x, y] = list(value);
+  const px = num(x);
+  const py = num(y);
+  return px !== null && py !== null ? [px, py] : null;
+};
+
+const ring = (value: unknown): Point[] | null => {
+  const points = list(value).map(point);
+  return points.length === 20 && points.every((p) => p !== null)
+    ? points
+    : null;
+};
+
+/** `config/calibration/ellipses` + `cams/stats` → points per camera (cameras without full data are left out). */
+export function toCalibration(
+  ellipses: unknown,
+  camStats: unknown,
+): BoardCalibration | null {
+  if (!isObject(ellipses)) {
+    return null;
+  }
+  const resolution =
+    isObject(camStats) && isObject(camStats.resolution)
+      ? camStats.resolution
+      : {};
+  const cams: Record<string, CamCalibration> = {};
+  for (const [index, cam] of Object.entries(ellipses)) {
+    if (!/^\d$/.test(index) || !isObject(cam)) continue;
+    const bull = point(cam.bull);
+    const doubleOuter = ring(cam.doubleOuterPoints);
+    const doubleInner = ring(cam.doubleInnerPoints);
+    const trebleOuter = ring(cam.trebleOuterPoints);
+    const trebleInner = ring(cam.trebleInnerPoints);
+    if (bull && doubleOuter && doubleInner && trebleOuter && trebleInner) {
+      cams[index] = {
+        bull,
+        doubleOuter,
+        doubleInner,
+        trebleOuter,
+        trebleInner,
+      };
+    }
+  }
+  if (Object.keys(cams).length === 0) {
+    return null;
+  }
+  return {
+    width: num(resolution.width) ?? 1280,
+    height: num(resolution.height) ?? 720,
+    cams,
+  };
+}
