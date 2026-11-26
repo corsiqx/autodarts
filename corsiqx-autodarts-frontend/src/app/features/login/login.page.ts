@@ -1,5 +1,14 @@
-import { ChangeDetectionStrategy, Component, OnInit, inject, viewChild } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  OnInit,
+  effect,
+  inject,
+  viewChild,
+} from '@angular/core';
+import { Router } from '@angular/router';
 import { UsersStore } from '../../core/users/users.store';
+import { initials } from '../../shared/initials';
 import { AddAccountDialog } from './add-account-dialog';
 
 @Component({
@@ -10,9 +19,20 @@ import { AddAccountDialog } from './add-account-dialog';
 })
 export class LoginPage implements OnInit {
   protected readonly store = inject(UsersStore);
+  private readonly router = inject(Router);
   private readonly addDialog = viewChild.required(AddAccountDialog);
 
   protected readonly skeletonRows = [0, 1, 2];
+  protected readonly initials = initials;
+
+  constructor() {
+    // A successful login (by click or by creating an account) opens the dashboard.
+    effect(() => {
+      if (this.store.session()) {
+        void this.router.navigate(['/dashboard']);
+      }
+    });
+  }
 
   ngOnInit(): void {
     void this.store.load();
@@ -20,12 +40,5 @@ export class LoginPage implements OnInit {
 
   protected openAddDialog(): void {
     this.addDialog().open();
-  }
-
-  protected initials(name: string): string {
-    const parts = name.trim().split(/\s+/).filter(Boolean);
-    const letters =
-      parts.length > 1 ? parts[0][0] + parts[parts.length - 1][0] : (parts[0] ?? '').slice(0, 2);
-    return letters.toUpperCase();
   }
 }

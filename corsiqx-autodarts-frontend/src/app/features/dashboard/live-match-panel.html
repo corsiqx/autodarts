@@ -1,0 +1,151 @@
+<section
+  class="rounded-xl border border-line bg-surface/70 p-5 sm:p-6"
+  aria-labelledby="live-match-heading"
+>
+  <div class="flex items-center justify-between gap-3">
+    <h2 id="live-match-heading" class="font-display text-2xl font-bold uppercase">Live-Match</h2>
+    @if (match() && !match()!.finished) {
+      <span class="inline-flex items-center gap-2 text-sm font-semibold text-sky">
+        <span class="relative flex size-2.5" aria-hidden="true">
+          <span
+            class="absolute inline-flex size-full rounded-full bg-sky opacity-60 motion-safe:animate-ping"
+          ></span>
+          <span class="relative inline-flex size-2.5 rounded-full bg-sky"></span>
+        </span>
+        Läuft
+      </span>
+    }
+  </div>
+
+  @switch (store.match().status) {
+    @case ('idle') {
+      <ng-container *ngTemplateOutlet="skeleton" />
+    }
+    @case ('loading') {
+      <ng-container *ngTemplateOutlet="skeleton" />
+    }
+    @default {
+      @if (match(); as match) {
+        <p class="mt-1 text-sm text-muted">
+          {{ match.variant ?? 'Match' }}@if (progress()) {
+            <span class="text-line-strong" aria-hidden="true"> | </span>{{ progress() }}
+          }
+        </p>
+
+        @if (match.finished && winnerName()) {
+          <p
+            class="mt-5 flex items-center gap-2 rounded-lg border border-accent/50 bg-accent/10 px-4 py-3 font-semibold"
+          >
+            <i class="ph-fill ph-trophy text-xl text-sky" aria-hidden="true"></i>
+            {{ winnerName() }} hat gewonnen.
+          </p>
+        }
+
+        <ul class="mt-5 grid gap-2.5">
+          @for (player of match.players; track $index; let i = $index) {
+            @let throwing = !match.finished && match.currentPlayer === i;
+            <li
+              class="flex items-center gap-4 rounded-lg border px-4 py-3.5 transition-colors duration-300"
+              [class]="
+                throwing
+                  ? 'border-accent bg-linear-to-r from-accent/25 to-sky/5'
+                  : 'border-line bg-surface-2/60'
+              "
+              [attr.aria-current]="throwing ? 'true' : null"
+            >
+              @if (player.avatarUrl) {
+                <img
+                  [src]="player.avatarUrl"
+                  alt=""
+                  class="size-11 shrink-0 rounded-md object-cover"
+                  width="44"
+                  height="44"
+                />
+              } @else {
+                <span
+                  class="grid size-11 shrink-0 place-items-center rounded-md font-display text-lg font-bold"
+                  [class]="throwing ? 'bg-linear-to-br from-accent to-sky text-board' : 'bg-surface-2'"
+                  aria-hidden="true"
+                  >{{ initials(player.name) }}</span
+                >
+              }
+              <span class="grid min-w-0 flex-1">
+                <span class="truncate text-lg font-semibold">{{ player.name }}</span>
+                <span class="text-sm text-muted">
+                  @if (match.target.sets) {
+                    Sets {{ player.sets }}<span aria-hidden="true">, </span>
+                  }
+                  Legs {{ player.legs }}
+                  @if (throwing) {
+                    <span class="text-sky"> | am Wurf</span>
+                  }
+                </span>
+              </span>
+              @if (player.score !== null) {
+                <span
+                  class="font-display text-5xl leading-none font-bold tabular-nums sm:text-6xl"
+                  [class.text-sky]="throwing"
+                >
+                  <span class="sr-only">Rest </span>{{ player.score }}
+                </span>
+              }
+            </li>
+          }
+        </ul>
+
+        @if (match.lastTurn; as turn) {
+          <div class="mt-5 border-t border-line pt-4">
+            <p class="text-sm text-muted">
+              Letzte Aufnahme
+              @if (turn.playerIndex !== null && match.players[turn.playerIndex]) {
+                von {{ match.players[turn.playerIndex].name }}
+              }
+            </p>
+            <div class="mt-2 flex flex-wrap items-center gap-2">
+              @for (dart of turn.throws; track $index) {
+                <span
+                  class="inline-flex h-9 min-w-12 items-center justify-center rounded-md border border-line-strong bg-surface-2 px-2.5 font-display text-lg font-bold tabular-nums"
+                  >{{ dart }}</span
+                >
+              }
+              @if (turn.busted) {
+                <span class="ml-1 rounded-md bg-danger/15 px-2.5 py-1 text-sm font-semibold text-danger"
+                  >Überworfen</span
+                >
+              } @else if (turn.score !== null) {
+                <span class="ml-1 font-display text-2xl font-bold tabular-nums text-sky"
+                  >{{ turn.score }}</span
+                >
+              }
+            </div>
+          </div>
+        }
+      } @else if (store.match().status === 'error') {
+        <p class="mt-5 flex items-start gap-2 text-sm text-danger" role="alert">
+          <i class="ph-fill ph-warning-circle mt-0.5" aria-hidden="true"></i>
+          {{ store.match().error }} Wird automatisch erneut versucht.
+        </p>
+      } @else {
+        <div class="mt-4 grid justify-items-start gap-2 py-4">
+          <i class="ph ph-target text-3xl text-muted" aria-hidden="true"></i>
+          <p class="text-lg font-semibold">Gerade kein laufendes Match.</p>
+          <p class="max-w-[46ch] text-sm leading-relaxed text-muted">
+            Starte ein Spiel auf play.autodarts.com oder am Board. Es erscheint hier automatisch.
+          </p>
+        </div>
+      }
+    }
+  }
+</section>
+
+<ng-template #skeleton>
+  <div class="mt-5 grid gap-2.5" aria-busy="true" aria-label="Match wird geladen">
+    @for (row of [0, 1]; track row) {
+      <div class="flex items-center gap-4 rounded-lg border border-line bg-surface-2/60 px-4 py-3.5">
+        <span class="size-11 rounded-md bg-surface-2 motion-safe:animate-pulse"></span>
+        <span class="h-4 w-32 rounded bg-surface-2 motion-safe:animate-pulse"></span>
+        <span class="ml-auto h-10 w-20 rounded bg-surface-2 motion-safe:animate-pulse"></span>
+      </div>
+    }
+  </div>
+</ng-template>

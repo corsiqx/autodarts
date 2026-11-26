@@ -1,6 +1,13 @@
 import { HttpErrorResponse } from '@angular/common/http';
 import { computed, inject } from '@angular/core';
-import { patchState, signalStore, withComputed, withMethods, withState } from '@ngrx/signals';
+import {
+  patchState,
+  signalStore,
+  withComputed,
+  withHooks,
+  withMethods,
+  withState,
+} from '@ngrx/signals';
 import { firstValueFrom } from 'rxjs';
 import {
   ApiErrorBody,
@@ -40,6 +47,30 @@ const initialState: UsersState = {
 
 const byName = (a: UserSummary, b: UserSummary) =>
   a.name.localeCompare(b.name, 'de', { sensitivity: 'base' });
+
+/** Active login survives reloads within the tab; never contains tokens. */
+const SESSION_KEY = 'corsiqx.session';
+
+function readSession(): LoginResult | null {
+  try {
+    const raw = sessionStorage.getItem(SESSION_KEY);
+    return raw ? (JSON.parse(raw) as LoginResult) : null;
+  } catch {
+    return null;
+  }
+}
+
+function writeSession(session: LoginResult | null): void {
+  try {
+    if (session) {
+      sessionStorage.setItem(SESSION_KEY, JSON.stringify(session));
+    } else {
+      sessionStorage.removeItem(SESSION_KEY);
+    }
+  } catch {
+    // Storage blocked: the login just does not survive a reload.
+  }
+}
 
 const UNREACHABLE = 'Server nicht erreichbar. Prüfe deine Verbindung.';
 
@@ -112,6 +143,7 @@ export const UsersStore = signalStore(
       patchState(store, { loggingInId: userId, loginError: null });
       try {
         const session = await firstValueFrom(api.login(userId));
+        writeSession(session);
         patchState(store, { session, loggingInId: null });
       } catch (error) {
         patchState(store, {
@@ -126,6 +158,7 @@ export const UsersStore = signalStore(
       patchState(store, { creating: true, createError: null });
       try {
         const session = await firstValueFrom(api.create(payload));
+        writeSession(session);
         patchState(store, {
           users: [...store.users(), session.user].sort(byName),
           status: 'loaded',
@@ -140,8 +173,22 @@ export const UsersStore = signalStore(
       }
     },
 
+    /** Leaves the dashboard login; stored accounts stay. */
+    signOut(): void {
+      writeSession(null);
+      patchState(store, { session: null, loginError: null });
+    },
+
     clearCreateError(): void {
       patchState(store, { createError: null });
     },
   })),
+  withHooks({
+    onInit(store) {
+      const session = readSession();
+      if (session) {
+        patchState(store, { session });
+      }
+    },
+  }),
 );
