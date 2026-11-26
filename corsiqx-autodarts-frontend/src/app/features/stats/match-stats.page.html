@@ -1,0 +1,348 @@
+@let m = match();
+<div class="app-backdrop min-h-dvh overflow-x-clip">
+  <app-top-nav active="stats" />
+  <main class="mx-auto w-full max-w-5xl px-4 pb-16 pt-6 sm:px-6 sm:pt-8">
+    <a routerLink="/stats" [queryParams]="{ tab: 'verlauf' }" class="inline-flex items-center gap-1.5 text-sm font-semibold text-muted hover:text-bone">
+      <i class="ph ph-caret-left" aria-hidden="true"></i>Match-Verlauf
+    </a>
+
+    @if (error(); as message) {
+      <p class="mt-6 rounded-xl border border-line bg-surface/70 px-5 py-8 text-center text-danger" role="alert">{{ message }}</p>
+    } @else if (!m) {
+      <div class="mt-6 h-40 rounded-xl border border-line bg-surface/70 motion-safe:animate-pulse" aria-label="Match wird geladen"></div>
+    } @else {
+      <div class="mt-4 flex flex-wrap items-center gap-2">
+        <h1 class="mr-1 font-display text-2xl font-bold">{{ m.variant ?? 'Match' }}</h1>
+        @for (chip of chips(); track chip) {
+          <span class="rounded-full bg-surface-2 px-2.5 py-0.5 text-xs font-semibold text-bone/85">{{ chip }}</span>
+        }
+      </div>
+
+      <!-- Score banner in player colours -->
+      <section class="mt-3 overflow-hidden rounded-xl border border-line bg-surface/70" aria-label="Ergebnis">
+        <div class="grid" [style.grid-template-columns]="'repeat(' + m.players.length + ', minmax(0, 1fr))'">
+          @for (p of m.players; track $index; let i = $index) {
+            <div class="grid justify-items-center gap-1 px-3 py-4" [style.background]="gradient(i)">
+              <app-player-tag [name]="p.name" [avatarUrl]="p.avatarUrl" [country]="p.country" [isBot]="p.isBot" [botAverage]="p.botAverage" />
+              <p class="font-display text-5xl leading-none font-bold tabular-nums sm:text-6xl">{{ m.targetSets ? p.sets : p.legs }}</p>
+            </div>
+          }
+        </div>
+        <p class="py-2 text-center text-sm font-semibold">
+          {{ subtitle() }}
+          @if (duration()) {
+            <span class="text-bone/60"> · </span>{{ duration() }} <span class="text-bone/60">Spielzeit</span>
+          }
+        </p>
+      </section>
+
+      <h2 class="mt-6 font-display text-2xl font-bold uppercase">Spielstatistik</h2>
+      <nav class="mt-3 flex gap-5 border-b border-line" role="tablist" aria-label="Ansicht">
+        @for (t of [['stats', 'Statistiken'], ['heat', 'Heatmaps'], ['visits', 'Aufschlüsselung']]; track t[0]) {
+          <button
+            type="button"
+            role="tab"
+            class="relative cursor-pointer pb-3 text-[0.95rem] font-semibold transition-colors"
+            [class]="tab() === t[0] ? 'text-bone' : 'text-muted hover:text-bone'"
+            [attr.aria-selected]="tab() === t[0]"
+            (click)="tab.set($any(t[0]))"
+          >
+            {{ t[1] }}
+            @if (tab() === t[0]) {
+              <span class="absolute inset-x-0 -bottom-px h-0.5 rounded-full bg-sky" aria-hidden="true"></span>
+            }
+          </button>
+        }
+      </nav>
+
+      <!-- Statistiken -->
+      @if (tab() === 'stats') {
+        @if (m.players.length === 2) {
+          <div class="mt-5 grid gap-4 lg:grid-cols-[minmax(0,1.5fr)_minmax(0,1fr)]">
+            <section class="rounded-xl border border-line bg-surface/70 px-5 py-3" aria-label="Vergleich">
+              @for (row of compare(); track row.label) {
+                <div class="py-3">
+                  <div class="grid grid-cols-[1fr_auto_1fr] items-center gap-3">
+                    <span class="justify-self-start">
+                      <span
+                        class="inline-block rounded-md px-2 py-1 font-display text-lg font-bold tabular-nums"
+                        [style.background]="row.best === 0 ? gradient(0) : null"
+                        >{{ row.values[0] }}</span
+                      >
+                    </span>
+                    <span class="text-center text-xs text-bone/75">{{ row.label }}</span>
+                    <span class="justify-self-end">
+                      <span
+                        class="inline-block rounded-md px-2 py-1 font-display text-lg font-bold tabular-nums"
+                        [style.background]="row.best === 1 ? gradient(1) : null"
+                        >{{ row.values[1] }}</span
+                      >
+                    </span>
+                  </div>
+                  <div class="mt-2 grid grid-cols-2 gap-2">
+                    <div class="flex h-2.5 justify-end overflow-hidden rounded-full bg-surface-2">
+                      <span
+                        class="h-full rounded-full"
+                        [class]="row.best === 0 ? 'bg-linear-to-l from-accent to-accent-deep' : 'bg-line-strong'"
+                        [style.width.%]="row.bars[0]"
+                      ></span>
+                    </div>
+                    <div class="flex h-2.5 overflow-hidden rounded-full bg-surface-2">
+                      <span
+                        class="h-full rounded-full"
+                        [class]="row.best === 1 ? 'bg-linear-to-r from-accent-deep to-accent' : 'bg-line-strong'"
+                        [style.width.%]="row.bars[1]"
+                      ></span>
+                    </div>
+                  </div>
+                </div>
+              }
+            </section>
+
+            <table class="h-fit w-full overflow-hidden rounded-xl border border-line bg-surface/70">
+              <tbody>
+                @for (row of counts(); track row.label) {
+                  <tr class="border-b border-white/5 last:border-b-0">
+                    <td class="px-5 py-4 font-display text-xl font-bold tabular-nums">{{ row.values[0] }}</td>
+                    <th scope="row" class="py-4 text-center text-sm font-normal text-bone/75">{{ row.label }}</th>
+                    <td class="px-5 py-4 text-right font-display text-xl font-bold tabular-nums">{{ row.values[1] }}</td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+        } @else {
+          <div class="mt-5 overflow-x-auto rounded-xl border border-line bg-surface/70">
+            <table class="w-full text-sm">
+              <thead>
+                <tr>
+                  <th scope="col" class="px-4 py-3 text-left font-medium text-bone/70"><span class="sr-only">Wert</span></th>
+                  @for (p of m.players; track $index) {
+                    <th scope="col" class="px-4 py-3 text-right font-display text-base font-bold uppercase">{{ p.name }}</th>
+                  }
+                </tr>
+              </thead>
+              <tbody>
+                @for (row of compare(); track row.label) {
+                  <tr class="border-t border-white/5">
+                    <th scope="row" class="px-4 py-3 text-left font-normal text-bone/80">{{ row.label }}</th>
+                    @for (v of row.values; track $index; let i = $index) {
+                      <td class="px-4 py-3 text-right font-bold tabular-nums" [class.text-sky]="row.best === i">{{ v }}</td>
+                    }
+                  </tr>
+                }
+                @for (row of counts(); track row.label) {
+                  <tr class="border-t border-white/5">
+                    <th scope="row" class="px-4 py-3 text-left font-normal text-bone/80">{{ row.label }}</th>
+                    @for (v of row.values; track $index) {
+                      <td class="px-4 py-3 text-right font-bold tabular-nums">{{ v }}</td>
+                    }
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+        }
+      }
+
+      <!-- Heatmaps: thermal layers per player; with two players a split slider shows one on each side -->
+      @if (tab() === 'heat') {
+        @let duel = m.players.length === 2;
+        <div class="mx-auto mt-5 grid max-w-xl justify-items-center gap-4">
+          <div
+            class="aspect-square w-full rounded-full p-1.5"
+            [style.background]="duel ? 'linear-gradient(90deg, ' + colors[0].from + ' 0%, ' + colors[0].to + ' 50%, ' + colors[1].to + ' 50%, ' + colors[1].from + ' 100%)' : colors[0].from"
+          >
+            <div
+              #heatBox
+              class="relative size-full touch-none select-none"
+              [class.cursor-ew-resize]="duel"
+              (pointerdown)="duel && startSplit($event, heatBox)"
+              (pointermove)="moveSplit($event, heatBox)"
+              (pointerup)="dragging.set(false)"
+              (pointercancel)="dragging.set(false)"
+            >
+              <div class="relative size-full overflow-hidden rounded-full bg-board">
+                <app-dartboard class="size-full" [disabled]="true" />
+                @for (layer of heatLayers(); track $index; let i = $index) {
+                  @if (layer && !hiddenHeat().has(i)) {
+                    <img
+                      [src]="layer"
+                      alt=""
+                      class="pointer-events-none absolute inset-0 size-full"
+                      [style.clip-path]="duel ? (i === 0 ? 'inset(0 ' + (100 - split()) + '% 0 0)' : 'inset(0 0 0 ' + split() + '%)') : null"
+                    />
+                  }
+                }
+              </div>
+              @if (duel) {
+                <span class="pointer-events-none absolute -inset-y-1.5 w-0.5 -translate-x-1/2 bg-sky" [style.left.%]="split()" aria-hidden="true"></span>
+                <button
+                  type="button"
+                  role="slider"
+                  class="absolute bottom-[1%] grid size-10 -translate-x-1/2 cursor-ew-resize place-items-center rounded-full bg-accent text-white shadow-[0_6px_18px_-6px_rgb(61_123_255/0.9)] ring-2 ring-board"
+                  [style.left.%]="split()"
+                  aria-label="Trennlinie zwischen den Spielern"
+                  aria-valuemin="0"
+                  aria-valuemax="100"
+                  [attr.aria-valuenow]="roundSplit()"
+                  [attr.aria-valuetext]="'Links ' + m.players[0].name + ', rechts ' + m.players[1].name"
+                  (keydown)="nudgeSplit($event)"
+                >
+                  <i class="ph ph-arrows-left-right text-lg" aria-hidden="true"></i>
+                </button>
+              }
+            </div>
+          </div>
+
+          <div class="flex flex-wrap items-center justify-center gap-2">
+            @for (p of m.players; track $index; let i = $index; let last = $last) {
+              <button
+                type="button"
+                class="flex cursor-pointer items-center gap-3 rounded-xl border border-line bg-surface/70 px-3 py-2 transition-opacity"
+                [class.opacity-45]="hiddenHeat().has(i)"
+                [attr.aria-pressed]="!hiddenHeat().has(i)"
+                (click)="toggleHeat(i)"
+              >
+                <span class="size-4 rounded" [style.background]="gradient(i)" aria-hidden="true"></span>
+                <app-player-tag [name]="p.name" [avatarUrl]="p.avatarUrl" [country]="p.country" [isBot]="p.isBot" [botAverage]="p.botAverage" />
+                <span class="text-xs text-bone/60">{{ m.heat[i].length }} Darts</span>
+              </button>
+              @if (duel && !last) {
+                <span class="text-xs font-semibold text-muted">vs</span>
+              }
+            }
+          </div>
+          @if (!hasHeat()) {
+            <p class="text-sm text-muted">Für dieses Match gibt es keine Wurfpositionen (z. B. nur Punkte eingetippt).</p>
+          }
+        </div>
+      }
+
+      <!-- Aufschlüsselung -->
+      @if (tab() === 'visits') {
+        @if (m.legs.length > 1) {
+          <div class="mt-5 flex w-fit max-w-full flex-wrap gap-1 rounded-lg bg-board/60 p-1" role="group" aria-label="Leg wählen">
+            @for (leg of m.legs; track $index; let i = $index) {
+              <button
+                type="button"
+                class="h-9 cursor-pointer rounded-md px-3.5 text-sm font-semibold"
+                [class]="legIndex() === i ? 'bg-linear-to-r from-accent to-sky text-board' : 'bg-surface-2 text-muted hover:text-bone hover:bg-surface-2'"
+                (click)="legIndex.set(i)"
+              >
+                {{ m.targetSets ? 'Set ' + leg.set + ' · ' : '' }}Leg {{ leg.leg }}
+              </button>
+            }
+          </div>
+        }
+
+        @if (leg(); as leg) {
+          <h3 class="mt-5 text-lg font-bold">Leg {{ leg.leg }} Aufnahmenverlauf</h3>
+          @if (chart(); as c) {
+            <div class="mt-3 rounded-xl border border-line bg-surface/70 p-4">
+              <div class="relative">
+                <svg
+                  #chartSvg
+                  [attr.viewBox]="'-34 -8 ' + (c.width + 44) + ' ' + (c.height + 28)"
+                  class="w-full touch-none"
+                  role="img"
+                  aria-label="Restpunkte je Aufnahme"
+                  (pointermove)="trackChart($event, chartSvg)"
+                  (pointerdown)="trackChart($event, chartSvg)"
+                  (pointerleave)="hover.set(null)"
+                >
+                  @for (l of c.levels; track l.label) {
+                    <line x1="0" [attr.x2]="c.width" [attr.y1]="l.y" [attr.y2]="l.y" stroke="#1f2f52" stroke-width="1" />
+                    <text x="-8" [attr.y]="l.y" text-anchor="end" dominant-baseline="central" font-size="10" fill="#9aa8c9">{{ l.label }}</text>
+                  }
+                  @for (t of c.ticks; track t.label) {
+                    <line [attr.x1]="t.x" [attr.x2]="t.x" y1="0" [attr.y2]="c.height" stroke="#15223f" stroke-width="1" />
+                    <text
+                      [attr.x]="t.x"
+                      [attr.y]="c.height + 14"
+                      text-anchor="middle"
+                      font-size="10"
+                      [attr.fill]="hoverInfo()?.round === t.label ? '#eaf0ff' : '#9aa8c9'"
+                      [attr.font-weight]="hoverInfo()?.round === t.label ? 700 : 400"
+                    >
+                      {{ t.label }}
+                    </text>
+                  }
+                  <!-- Wide transparent strip so the pointer is tracked over the whole plot. -->
+                  <rect x="0" y="0" [attr.width]="c.width" [attr.height]="c.height" fill="transparent" />
+                  @if (hoverInfo(); as hov) {
+                    <line [attr.x1]="hov.x" [attr.x2]="hov.x" y1="0" [attr.y2]="c.height" stroke="#9aa8c9" stroke-width="1.2" stroke-dasharray="3 3" />
+                  }
+                  @for (line of c.lines; track $index) {
+                    <path [attr.d]="line.path" fill="none" [attr.stroke]="line.color" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round" />
+                  }
+                  @if (hoverInfo(); as hov) {
+                    @for (row of hov.rows; track $index) {
+                      @if (row.point; as p) {
+                        <circle [attr.cx]="p.x" [attr.cy]="p.y" r="4" [attr.fill]="row.color" stroke="#070d1f" stroke-width="2" />
+                      }
+                    }
+                  }
+                </svg>
+
+                @if (hoverInfo(); as hov) {
+                  <div
+                    class="pointer-events-none absolute top-[12%] z-10 grid gap-1.5 rounded-lg border border-line bg-board/95 px-2.5 py-2 shadow-xl"
+                    [style.left.%]="hov.left"
+                    [style.transform]="hov.left > 70 ? 'translateX(calc(-100% - 10px))' : 'translateX(10px)'"
+                    role="status"
+                  >
+                    <p class="text-[0.65rem] font-semibold uppercase tracking-wider text-muted">{{ hov.round === 0 ? 'Start' : 'Aufnahme ' + hov.round }}</p>
+                    @for (row of hov.rows; track $index; let i = $index) {
+                      <p class="flex items-center gap-2">
+                        <span class="size-3.5 rounded" [style.background]="row.color" aria-hidden="true"></span>
+                        <span class="sr-only">{{ m.players[i].name }}:</span>
+                        <span class="min-w-12 rounded bg-surface-2 px-2 py-0.5 text-right font-display text-sm font-bold tabular-nums">{{ row.point ? row.point.score : '–' }}</span>
+                      </p>
+                    }
+                  </div>
+                }
+              </div>
+            </div>
+          }
+
+          <div class="mt-4 grid gap-2" [style.grid-template-columns]="'2.5rem repeat(' + m.players.length + ', minmax(0, 1fr))'">
+            <span></span>
+            @for (p of m.players; track $index; let i = $index) {
+              <div class="flex items-center justify-between gap-2 rounded-t-xl bg-surface-2/60 px-3 py-2.5">
+                <span class="flex min-w-0 items-center gap-2">
+                  <span class="size-3 shrink-0 rounded-full" [style.background]="gradient(i)" aria-hidden="true"></span>
+                  <app-player-tag [name]="p.name" [avatarUrl]="p.avatarUrl" [country]="p.country" [isBot]="p.isBot" [botAverage]="p.botAverage" />
+                </span>
+                <span class="rounded-md bg-surface-2 px-2 py-0.5 font-display font-bold tabular-nums">{{ m.baseScore ?? '' }}</span>
+              </div>
+            }
+            @for (row of visitRows(); track row.round) {
+              <span class="grid place-items-center rounded-lg bg-surface-2/60 font-display text-lg font-bold text-bone/80">{{ row.round }}</span>
+              @for (cell of row.cells; track $index; let i = $index) {
+                @if (cell) {
+                  <div class="flex items-center justify-between gap-2 px-3 py-2.5" [class]="cell.remaining === 0 ? 'bg-accent/15' : 'bg-surface-2/60'">
+                    <span class="min-w-0">
+                      <span class="flex items-center gap-1.5 font-display text-2xl leading-none font-bold tabular-nums">
+                        {{ cell.busted ? 'Bust' : cell.points }}
+                        @if (cell.remaining === 0) {
+                          <i class="ph-fill ph-check-circle text-base text-emerald-400" aria-label="Checkout"></i>
+                        }
+                      </span>
+                      <span class="block truncate text-xs text-bone/60">{{ cell.throws.join(' ') }}</span>
+                    </span>
+                    <span class="rounded-md bg-surface-2 px-2 py-0.5 font-display font-bold tabular-nums text-bone/85">{{ cell.remaining ?? '' }}</span>
+                  </div>
+                } @else {
+                  <div class="bg-surface-2/30"></div>
+                }
+              }
+            }
+          </div>
+        } @else {
+          <p class="mt-5 text-sm text-muted">Für dieses Match gibt es keine Aufnahmen.</p>
+        }
+      }
+    }
+  </main>
+</div>

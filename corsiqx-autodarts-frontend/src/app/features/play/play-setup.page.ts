@@ -1,7 +1,7 @@
 import { HttpErrorResponse } from '@angular/common/http';
 import { ChangeDetectionStrategy, Component, OnInit, computed, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { Router, RouterLink } from '@angular/router';
+import { Router } from '@angular/router';
 import { firstValueFrom } from 'rxjs';
 import { DashboardBoard } from '../../core/autodarts/dashboard.model';
 import { DashboardApiService } from '../../core/autodarts/dashboard-api.service';
@@ -12,6 +12,7 @@ import { UsersStore } from '../../core/users/users.store';
 import { Avatar } from '../../shared/avatar';
 import { BOT_LEVELS } from '../../shared/average-tier';
 import { BotTag } from '../../shared/bot-tag';
+import { TopNav } from '../../shared/top-nav';
 
 const SETTINGS_KEY = 'corsiqx.play-settings';
 const MAX_PLAYERS = 6;
@@ -52,7 +53,7 @@ function loadSettings(): SavedSettings {
 /** Game settings and players, then starts the match on the Autodarts game server. */
 @Component({
   selector: 'app-play-setup-page',
-  imports: [FormsModule, RouterLink, Avatar, BotTag],
+  imports: [FormsModule, Avatar, BotTag, TopNav],
   templateUrl: './play-setup.page.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })

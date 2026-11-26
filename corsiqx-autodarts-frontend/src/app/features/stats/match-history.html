@@ -1,0 +1,112 @@
+@let history = data();
+<div class="flex flex-wrap items-center gap-x-6 gap-y-3" role="group" aria-label="Nach Match-Typ filtern">
+  @for (t of types; track t.type) {
+    @let count = history ? t.count(history) : null;
+    <button
+      type="button"
+      class="flex cursor-pointer items-center gap-2 border-l-2 py-0.5 pl-3 text-sm font-semibold transition-opacity duration-150 disabled:cursor-default"
+      [class]="
+        type() === t.type
+          ? 'border-sky text-bone'
+          : count === 0
+            ? 'border-accent/30 text-bone/30'
+            : type()
+              ? 'border-accent/50 text-bone/55 hover:text-bone'
+              : 'border-accent text-bone hover:text-sky'
+      "
+      [disabled]="count === 0"
+      [attr.aria-pressed]="type() === t.type"
+      (click)="toggleType(t.type)"
+    >
+      <i class="ph-fill {{ t.icon }} text-lg" aria-hidden="true"></i>
+      <b class="tabular-nums">{{ count ?? '–' }}</b>{{ t.label }}
+    </button>
+  }
+  @if (type()) {
+    <button type="button" class="ml-auto inline-flex h-9 cursor-pointer items-center gap-1.5 rounded-lg border border-line-strong px-3 text-sm font-semibold hover:border-accent/70 hover:bg-surface-2" (click)="type.set(null); page.set(0)">
+      <i class="ph ph-x" aria-hidden="true"></i>Filter zurücksetzen
+    </button>
+  }
+</div>
+
+@if (error(); as message) {
+  <p class="mt-6 text-sm text-danger" role="alert">{{ message }}</p>
+} @else if (!history) {
+  <div class="mt-6 grid gap-1" aria-busy="true" aria-label="Matches werden geladen">
+    @for (row of [0, 1, 2, 3, 4]; track row) {
+      <div class="h-20 rounded-lg bg-surface-2/60 motion-safe:animate-pulse"></div>
+    }
+  </div>
+} @else if (!history.items.length) {
+  <p class="mt-6 rounded-xl border border-line bg-surface/70 px-5 py-8 text-center text-muted">Keine Matches gefunden.</p>
+} @else {
+  <div class="mt-6 overflow-hidden rounded-xl border border-line bg-surface/70" [class.opacity-60]="loading()">
+    <table class="w-full text-sm">
+      <thead class="hidden text-left text-bone/80 sm:table-header-group">
+        <tr>
+          <th scope="col" class="px-4 py-3 font-semibold">Match-Typ</th>
+          <th scope="col" class="px-4 py-3 font-semibold">Datum</th>
+          <th scope="col" class="px-4 py-3 font-semibold">Zeit</th>
+          <th scope="col" class="px-4 py-3 font-semibold">Ergebnis</th>
+          <th scope="col" class="px-4 py-3"><span class="sr-only">Statistik</span></th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (match of history.items; track match.id) {
+          <tr class="grid grid-cols-[1fr_auto] gap-x-3 border-t border-white/5 px-4 py-3 odd:bg-white/[0.02] sm:table-row sm:px-0 sm:py-0">
+            <td class="flex items-center gap-2 font-bold sm:table-cell sm:px-4 sm:py-4">
+              <i class="ph-fill {{ icon(match.type) }} mr-1 text-lg text-bone/70" aria-hidden="true"></i>{{ match.variant ?? 'Match' }}
+            </td>
+            <td class="text-bone/75 sm:table-cell sm:px-4">
+              {{ date(match.finishedAt) }}<span class="sm:hidden"> · {{ time(match.finishedAt) }}</span>
+            </td>
+            <td class="hidden text-bone/75 sm:table-cell sm:px-4">{{ time(match.finishedAt) }}</td>
+            <td class="col-span-2 py-2 sm:table-cell sm:px-4 sm:py-3">
+              <div class="grid gap-1.5">
+                @for (p of match.players; track $index; let first = $first) {
+                  <div class="grid grid-cols-[minmax(0,14rem)_3rem_2rem] items-center gap-3">
+                    <app-player-tag
+                      [name]="p.name"
+                      [avatarUrl]="p.avatarUrl"
+                      [country]="p.country"
+                      [isBot]="p.isBot"
+                      [botAverage]="p.botAverage"
+                      [muted]="!p.winner && match.players.length > 1"
+                    />
+                    <span class="w-10 text-right text-bone/70">{{ first ? (match.hasSets ? 'Sets' : 'Legs') : '' }}</span>
+                    <span
+                      class="grid h-6 min-w-6 place-items-center justify-self-start rounded px-1 font-display text-base font-bold tabular-nums"
+                      [class]="p.winner ? 'bg-board text-emerald-400' : 'bg-board text-bone/85'"
+                      >{{ match.hasSets ? p.sets : p.legs }}</span
+                    >
+                  </div>
+                }
+              </div>
+            </td>
+            <td class="col-span-2 sm:table-cell sm:px-4 sm:text-right">
+              <a
+                [routerLink]="['/stats/match', match.id]"
+                class="inline-flex size-11 items-center justify-center rounded-xl bg-surface-2 text-bone transition-colors hover:bg-accent/40"
+                [attr.aria-label]="'Statistik zum Match vom ' + date(match.finishedAt)"
+              >
+                <i class="ph-fill ph-chart-bar text-xl" aria-hidden="true"></i>
+              </a>
+            </td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+
+  @if (pages() > 1) {
+    <nav class="mt-4 flex items-center justify-center gap-2" aria-label="Seiten">
+      <button type="button" class="grid size-10 cursor-pointer place-items-center rounded-lg border border-line-strong hover:bg-surface-2 disabled:opacity-40" [disabled]="page() === 0" (click)="go(page() - 1)" aria-label="Vorherige Seite">
+        <i class="ph ph-caret-left" aria-hidden="true"></i>
+      </button>
+      <span class="min-w-28 text-center text-sm font-semibold tabular-nums">Seite {{ page() + 1 }} von {{ pages() }}</span>
+      <button type="button" class="grid size-10 cursor-pointer place-items-center rounded-lg border border-line-strong hover:bg-surface-2 disabled:opacity-40" [disabled]="page() >= pages() - 1" (click)="go(page() + 1)" aria-label="Nächste Seite">
+        <i class="ph ph-caret-right" aria-hidden="true"></i>
+      </button>
+    </nav>
+  }
+}

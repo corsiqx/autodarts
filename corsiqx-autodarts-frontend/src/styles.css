@@ -100,7 +100,8 @@
   min-height: 9rem;
   flex-direction: column;
   gap: 0.75rem;
-  overflow: hidden;
+  /* clip, not hidden: hidden boxes can still be scrolled (e.g. on focus), which shifted the player photo up. */
+  overflow: clip;
   border-radius: 0.875rem;
   padding: 1.25rem;
   color: #fff;
@@ -150,4 +151,16 @@
 /* Name part of a bot tag: straight left edge under the avatar, slanted right edge. */
 .bot-tag {
   clip-path: polygon(0 0, 100% 0, calc(100% - 0.45em) 100%, 0 100%);
+}
+
+/* Horizontal card rail: snaps to whole cards, thin on-theme scrollbar. */
+.card-rail {
+  scroll-snap-type: x mandatory;
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-line-strong) transparent;
+  overscroll-behavior-x: contain;
+}
+
+.card-rail > * {
+  scroll-snap-align: start;
 }
