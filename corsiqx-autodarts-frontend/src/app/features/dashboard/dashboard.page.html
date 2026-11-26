@@ -1,63 +1,5 @@
 <div class="app-backdrop min-h-dvh overflow-x-clip" id="start">
-  <header class="sticky top-0 z-20 border-b border-line/70 bg-board/75 backdrop-blur-md">
-    <div class="mx-auto flex h-16 w-full max-w-[100rem] items-center gap-4 px-4 sm:px-6">
-      <p class="flex shrink-0 items-center gap-2 font-display text-lg font-semibold uppercase tracking-[0.06em]">
-        <i class="ph-fill ph-target text-2xl text-sky" aria-hidden="true"></i>
-        <span class="hidden md:inline">corsiqx autodarts</span>
-      </p>
-
-      <nav class="mx-auto flex min-w-0 items-center gap-1 overflow-x-auto [scrollbar-width:none]" aria-label="Bereiche">
-        @for (item of nav; track item.label) {
-          @if (item.external) {
-            <a
-              [href]="item.href"
-              target="_blank"
-              rel="noopener"
-              class="relative inline-flex h-10 shrink-0 items-center gap-1 rounded-md px-2.5 text-[0.95rem] font-semibold text-muted transition-colors duration-150 hover:text-bone sm:px-3"
-            >
-              {{ item.label }}<i class="ph ph-arrow-up-right text-xs" aria-hidden="true"></i>
-              <span class="sr-only">(öffnet Autodarts Play)</span>
-            </a>
-          } @else {
-            <button
-              type="button"
-              class="relative inline-flex h-10 shrink-0 cursor-pointer items-center rounded-md px-2.5 text-[0.95rem] font-semibold transition-colors duration-150 hover:text-bone sm:px-3"
-              [class]="item.href === 'start' ? 'text-bone' : 'text-muted'"
-              (click)="scrollTo(item.href)"
-            >
-              {{ item.label }}
-              @if (item.href === 'start') {
-                <span class="absolute inset-x-2.5 -bottom-px h-0.5 rounded-full bg-sky" aria-hidden="true"></span>
-              }
-            </button>
-          }
-        }
-      </nav>
-
-      @if (users.session(); as session) {
-        <div class="flex shrink-0 items-center gap-2">
-          <app-avatar
-            class="size-9 rounded-full ring-1 ring-line-strong"
-            [name]="session.user.name"
-            [url]="dashboard.home().data?.profile?.avatarUrl ?? null"
-          />
-          <span class="hidden min-w-0 leading-tight lg:grid">
-            <span class="truncate text-sm font-semibold">{{ session.user.name }}</span>
-            <span class="truncate text-xs text-muted">{{ session.autodarts.username ?? 'Autodarts' }}</span>
-          </span>
-          <button
-            type="button"
-            class="ml-1 inline-flex size-10 cursor-pointer items-center justify-center rounded-lg border border-line-strong text-bone transition-colors duration-150 hover:border-accent/70 hover:bg-surface-2"
-            title="Account wechseln"
-            (click)="switchAccount()"
-          >
-            <i class="ph ph-arrows-left-right text-base" aria-hidden="true"></i>
-            <span class="sr-only">Account wechseln</span>
-          </button>
-        </div>
-      }
-    </div>
-  </header>
+  <app-top-nav active="start" />
 
   <main class="mx-auto w-full max-w-[100rem] px-4 pb-16 pt-6 sm:px-6 sm:pt-8">
     <h1 class="sr-only">Start</h1>
@@ -67,7 +9,7 @@
         <app-player-strip />
         <app-hero-tiles />
         <app-tournaments-panel id="turniere" class="scroll-mt-20" [userId]="userId" />
-        <app-stats-panel id="statistik" class="order-last scroll-mt-20 lg:order-none" [userId]="userId" />
+        <app-x01-summary id="statistik" class="order-last scroll-mt-20 lg:order-none" />
       </div>
       <app-community-panel id="freunde" class="scroll-mt-20 lg:sticky lg:top-20" [userId]="userId" />
     </div>

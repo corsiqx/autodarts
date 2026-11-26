@@ -28,5 +28,18 @@ export const routes: Routes = [
     canActivate: [sessionGuard],
     loadComponent: () => import('./features/play/match.page').then((m) => m.MatchPage),
   },
+  {
+    path: 'stats',
+    title: 'Statistiken | corsiqx autodarts',
+    canActivate: [sessionGuard],
+    loadComponent: () => import('./features/stats/stats.page').then((m) => m.StatsPage),
+  },
+  {
+    path: 'stats/match/:matchId',
+    title: 'Match-Statistik | corsiqx autodarts',
+    canActivate: [sessionGuard],
+    loadComponent: () =>
+      import('./features/stats/match-stats.page').then((m) => m.MatchStatsPage),
+  },
   { path: '**', redirectTo: '' },
 ];

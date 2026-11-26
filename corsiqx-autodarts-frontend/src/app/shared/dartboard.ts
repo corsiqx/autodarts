@@ -150,6 +150,19 @@ export function segmentAt(x: number, y: number): string {
           {{ label.n }}
         </text>
       }
+      @if (heat().length) {
+        <defs>
+          <filter id="heat-glow" x="-1" y="-1" width="3" height="3">
+            <feGaussianBlur stdDeviation="0.012" />
+          </filter>
+        </defs>
+        <g filter="url(#heat-glow)">
+          @for (dot of heat(); track $index) {
+            <circle [attr.cx]="dot.x" [attr.cy]="-dot.y" r="0.03" [attr.fill]="dot.color" fill-opacity="0.55" />
+            <circle [attr.cx]="dot.x" [attr.cy]="-dot.y" r="0.014" fill="#d9ff5a" fill-opacity="0.9" />
+          }
+        </g>
+      }
       @for (dart of markers(); track $index; let i = $index) {
         <g [attr.transform]="'translate(' + dart.x + ' ' + -dart.y + ')'">
           <circle r="0.042" fill="#56c2ff" stroke="#07101f" stroke-width="0.012" />
@@ -173,6 +186,8 @@ export class Dartboard {
   readonly disabled = input(false);
   readonly darts = input<({ x: number; y: number } | null)[]>([]);
   readonly hit = output<BoardHit>();
+  /** Heatmap dots (board coordinates, +y up) in a player colour. */
+  readonly heat = input<{ x: number; y: number; color: string }[]>([]);
 
   private readonly svg = viewChild.required<ElementRef<SVGSVGElement>>('svg');
 

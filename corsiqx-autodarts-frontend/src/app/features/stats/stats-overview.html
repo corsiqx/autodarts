@@ -1,0 +1,185 @@
+<app-variant-switch [(value)]="variant" />
+
+<h2 class="mt-8 font-display text-2xl font-bold uppercase">{{ variantLabel() }}-Leistung</h2>
+<app-totals-card class="mt-3" [figures]="totals()" />
+
+<div class="mt-8 flex flex-wrap items-center justify-between gap-3">
+  <h2 class="font-display text-2xl font-bold uppercase">Aufschlüsselung</h2>
+  <label class="relative inline-flex h-10 items-center gap-2 rounded-lg border border-line-strong bg-board/60 px-3 text-sm font-semibold transition-colors focus-within:border-accent hover:border-accent/70">
+    <i class="ph ph-funnel-simple" aria-hidden="true"></i>
+    <span class="sr-only">Zeitraum</span>
+    <select
+      class="cursor-pointer appearance-none bg-transparent pr-5 font-semibold text-bone focus:outline-none"
+      [ngModel]="limit()"
+      (ngModelChange)="limit.set(+$event)"
+    >
+      @for (l of limits; track l) {
+        <option [value]="l" class="bg-surface">Letzte {{ l }} Legs</option>
+      }
+    </select>
+    <i class="ph ph-caret-down pointer-events-none absolute right-3" aria-hidden="true"></i>
+  </label>
+</div>
+
+@if (error(); as message) {
+  <p class="mt-4 text-sm text-danger" role="alert">{{ message }}</p>
+} @else if (!data() && loading()) {
+  <div class="mt-4 grid gap-4 lg:grid-cols-3" aria-busy="true" aria-label="Statistik wird geladen">
+    @for (cell of [0, 1, 2]; track cell) {
+      <div class="h-56 rounded-xl border border-line bg-surface/70 motion-safe:animate-pulse"></div>
+    }
+  </div>
+} @else if (data(); as d) {
+  @if (!d.legs) {
+    <p class="mt-4 rounded-xl border border-line bg-surface/70 px-5 py-8 text-center text-muted">Noch keine {{ variantLabel() }}-Legs gespielt.</p>
+  } @else {
+    <p class="mt-2 text-sm text-bone/75">
+      @if (d.previousLegs) {
+        Verglichen mit deinen letzten {{ d.previousLegs }} Legs davor
+      } @else {
+        Noch keine früheren Legs zum Vergleichen
+      }
+    </p>
+
+    @if (x01(); as x) {
+      <div class="mt-3 grid gap-4 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_minmax(0,0.9fr)]" [class.opacity-60]="loading()">
+        <!-- 3-dart average: this window vs the one before -->
+        <section class="grid justify-items-center rounded-xl border border-line bg-surface/70 px-5 py-6" aria-label="3-Dart-Average">
+          <div class="relative flex h-28 items-end gap-4">
+            <span class="w-11 rounded-t-md bg-linear-to-t from-accent-deep to-accent" [style.height.%]="x.averageHeight" aria-hidden="true"></span>
+            @if (x.previousAverageHeight !== null) {
+              <span
+                class="w-11 rounded-t-md bg-[repeating-linear-gradient(135deg,#2c4170_0_3px,#15223f_3px_7px)]"
+                [style.height.%]="x.previousAverageHeight"
+                aria-hidden="true"
+              ></span>
+              <span class="absolute -left-4 -right-14 border-t border-dashed border-bone/40" [style.bottom.%]="x.previousAverageHeight" aria-hidden="true"></span>
+              <span class="absolute -right-16 text-[0.65rem] leading-tight text-bone/70" [style.bottom.%]="x.previousAverageHeight">Prev.<br />{{ x.previousAverage }}</span>
+            }
+          </div>
+          <p class="mt-4 font-display text-3xl font-bold tabular-nums">{{ x.average }}</p>
+          <p class="text-sm text-bone/80">3-Dart-Average</p>
+        </section>
+
+        <!-- Checkout rate ring -->
+        <section class="grid justify-items-center rounded-xl border border-line bg-surface/70 px-5 py-6" aria-label="Checkout-Quote">
+          <div class="relative size-28">
+            <svg viewBox="0 0 42 42" class="size-full -rotate-90" aria-hidden="true">
+              <circle cx="21" cy="21" r="15.915" fill="none" stroke="#15223f" stroke-width="5" />
+              <circle
+                cx="21"
+                cy="21"
+                r="15.915"
+                fill="none"
+                stroke="#3d7bff"
+                stroke-width="5"
+                stroke-linecap="round"
+                [attr.stroke-dasharray]="x.checkoutDash + ' ' + (100 - x.checkoutDash)"
+              />
+              @if (x.previousCheckoutAngle !== null) {
+                <line
+                  x1="21"
+                  y1="2.5"
+                  x2="21"
+                  y2="8.5"
+                  stroke="#eaf0ff"
+                  stroke-width="0.8"
+                  stroke-dasharray="1 0.8"
+                  [attr.transform]="'rotate(' + (x.previousCheckoutAngle + 90) + ' 21 21)'"
+                />
+              }
+            </svg>
+            <span class="absolute inset-0 grid place-items-center font-display text-xl font-bold tabular-nums">{{ x.checkout }}%</span>
+          </div>
+          @if (x.previousCheckout !== null) {
+            <p class="mt-1 text-[0.7rem] text-bone/70">Prev. {{ x.previousCheckout }}%</p>
+          }
+          <p class="mt-2 text-xs text-bone/70 tabular-nums">({{ x.checkoutHits }}/{{ x.checkoutTries }})</p>
+          <p class="text-sm text-bone/80">Checkout %</p>
+        </section>
+
+        <!-- Legs of the window + count table; spans both rows on wide screens -->
+        <div class="grid content-start gap-4 lg:row-span-2">
+          <dl class="grid grid-cols-2 gap-4 rounded-xl border border-line bg-surface/70 px-5 py-5">
+            <div class="flex flex-col border-l border-line-strong pl-4">
+              <dd class="order-2 font-display text-3xl font-bold tabular-nums">{{ x.legs }}</dd>
+              <dt class="order-1 text-[0.7rem] font-semibold uppercase tracking-wider text-muted">Gespielte Legs</dt>
+            </div>
+            <div class="flex flex-col border-l border-line-strong pl-4">
+              <dd class="order-2 font-display text-3xl font-bold tabular-nums">{{ x.legsWon }}</dd>
+              <dt class="order-1 text-[0.7rem] font-semibold uppercase tracking-wider text-muted">Gewonnene Legs</dt>
+            </div>
+          </dl>
+          <table class="w-full rounded-xl border border-line bg-surface/70 text-sm">
+            <thead>
+              <tr class="text-xs text-bone/70">
+                <th scope="col" class="px-5 pb-2 pt-4 text-left font-medium">Aus {{ x.legs }} Legs</th>
+                <th scope="col" class="px-3 pb-2 pt-4 text-right font-medium">Gesamt</th>
+                <th scope="col" class="px-5 pb-2 pt-4 text-right font-medium">Pro Leg</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (row of x.rows; track row.label) {
+                <tr class="border-t border-white/5">
+                  <th scope="row" class="px-5 py-3 text-left font-bold">{{ row.label }}</th>
+                  <td class="px-3 py-3 text-right font-bold tabular-nums">{{ row.total }}</td>
+                  <td class="px-5 py-3 text-right tabular-nums text-bone/80">{{ row.perLeg }}</td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Comparison bars -->
+        <section class="rounded-xl border border-line bg-surface/70 px-5 py-2 lg:col-span-2" aria-label="Weitere Durchschnitte">
+          @for (b of x.bars; track b.label) {
+            <ng-container *ngTemplateOutlet="compare; context: { $implicit: b }" />
+          }
+        </section>
+      </div>
+    } @else {
+      <section class="mt-3 rounded-xl border border-line bg-surface/70 px-5 py-2" [class.opacity-60]="loading()">
+        <div class="grid grid-cols-2 gap-4 border-b border-white/5 py-4">
+          <div class="border-l border-line-strong pl-4">
+            <p class="font-display text-3xl font-bold tabular-nums">{{ d.legs }}</p>
+            <p class="text-sm text-bone/80">Gespielte Legs</p>
+          </div>
+          <div class="border-l border-line-strong pl-4">
+            <p class="font-display text-3xl font-bold tabular-nums">{{ d.legsWonInWindow ?? 0 }}</p>
+            <p class="text-sm text-bone/80">Gewonnene Legs</p>
+          </div>
+        </div>
+        @for (b of generic(); track b.label) {
+          <ng-container *ngTemplateOutlet="compare; context: { $implicit: b }" />
+        }
+      </section>
+    }
+  }
+}
+
+<ng-template #compare let-b>
+  <div class="border-b border-white/5 py-4 last:border-b-0">
+    <div class="flex items-baseline justify-between gap-3">
+      <p class="text-sm text-bone/85">{{ b.label }}</p>
+      <p class="flex items-center gap-1.5 font-display text-xl font-bold tabular-nums">
+        @if (b.trend === 'up') {
+          <i class="ph-fill ph-caret-up text-xs text-emerald-400" aria-label="besser als vorher"></i>
+        } @else if (b.trend === 'down') {
+          <i class="ph-fill ph-caret-down text-xs text-rose-400" aria-label="schlechter als vorher"></i>
+        }
+        {{ b.text }}
+      </p>
+    </div>
+    <div class="relative mt-2 h-2.5 rounded-full bg-surface-2">
+      <span class="absolute inset-y-0 left-0 rounded-full bg-linear-to-r from-accent-deep to-accent" [style.width.%]="b.fill" aria-hidden="true"></span>
+      @if (b.marker !== null) {
+        <span class="absolute -inset-y-1 w-px bg-bone/80" [style.left.%]="b.marker" aria-hidden="true"></span>
+      }
+    </div>
+    @if (b.marker !== null) {
+      <p class="relative mt-1.5 h-4 text-[0.7rem] text-bone/70">
+        <span class="absolute -translate-x-1/2 whitespace-nowrap" [style.left.%]="b.marker"><b>Prev.</b> {{ b.previousText }}</span>
+      </p>
+    }
+  </div>
+</ng-template>
