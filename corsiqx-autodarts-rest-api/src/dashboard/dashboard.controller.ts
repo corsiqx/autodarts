@@ -8,7 +8,12 @@ import {
   Post,
 } from '@nestjs/common';
 import { DashboardBoard, LiveMatch } from './dashboard.mapper';
-import type { BoardAction, DashboardStats } from './dashboard.service';
+import type {
+  BoardAction,
+  DashboardStats,
+  HomeOverview,
+} from './dashboard.service';
+import type { HomeFriend, HomeTournament } from './home.mapper';
 import { DashboardService } from './dashboard.service';
 
 const BOARD_ACTIONS = { start: 'start', stop: 'stop', reset: 'reset' } as const;
@@ -47,5 +52,26 @@ export class DashboardController {
     @Param('userId', new ParseUUIDPipe()) userId: string,
   ): Promise<DashboardStats> {
     return this.dashboard.stats(userId);
+  }
+
+  @Get('home')
+  home(
+    @Param('userId', new ParseUUIDPipe()) userId: string,
+  ): Promise<HomeOverview> {
+    return this.dashboard.home(userId);
+  }
+
+  @Get('friends')
+  friends(
+    @Param('userId', new ParseUUIDPipe()) userId: string,
+  ): Promise<HomeFriend[]> {
+    return this.dashboard.friends(userId);
+  }
+
+  @Get('tournaments')
+  tournaments(
+    @Param('userId', new ParseUUIDPipe()) userId: string,
+  ): Promise<HomeTournament[]> {
+    return this.dashboard.tournaments(userId);
   }
 }
