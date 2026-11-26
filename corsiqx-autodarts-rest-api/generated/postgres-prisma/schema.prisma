@@ -8,12 +8,32 @@ generator client {
 }
 
 model User {
-  id           String   @id @default(uuid()) @db.Uuid
-  name         String   @db.VarChar(64)
-  email        String   @unique @db.VarChar(254)
-  passwordHash String   @map("password_hash")
-  createdAt    DateTime @default(now()) @map("created_at")
-  updatedAt    DateTime @updatedAt @map("updated_at")
+  id                String   @id @default(uuid()) @db.Uuid
+  name              String   @db.VarChar(64)
+  email             String   @unique @db.VarChar(254)
+  passwordHash      String   @map("password_hash")
+  /// Autodarts password, AES-256-GCM encrypted with CREDENTIALS_ENCRYPTION_KEY.
+  passwordEncrypted String?  @map("password_encrypted")
+  createdAt         DateTime @default(now()) @map("created_at")
+  updatedAt         DateTime @updatedAt @map("updated_at")
+
+  autodartsSession AutodartsSession?
 
   @@map("users")
+}
+
+/// Last Autodarts login of a user. Tokens are AES-256-GCM encrypted.
+model AutodartsSession {
+  userId                String   @id @map("user_id") @db.Uuid
+  autodartsUserId       String   @map("autodarts_user_id")
+  autodartsUsername     String?  @map("autodarts_username")
+  accessTokenEncrypted  String   @map("access_token_encrypted")
+  accessTokenExpiresAt  DateTime @map("access_token_expires_at")
+  refreshTokenEncrypted String?  @map("refresh_token_encrypted")
+  lastLoginAt           DateTime @default(now()) @map("last_login_at")
+  updatedAt             DateTime @updatedAt @map("updated_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("autodarts_sessions")
 }

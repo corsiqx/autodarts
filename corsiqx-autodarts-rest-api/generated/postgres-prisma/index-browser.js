@@ -125,7 +125,19 @@ exports.Prisma.UserScalarFieldEnum = {
   name: 'name',
   email: 'email',
   passwordHash: 'passwordHash',
+  passwordEncrypted: 'passwordEncrypted',
   createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.AutodartsSessionScalarFieldEnum = {
+  userId: 'userId',
+  autodartsUserId: 'autodartsUserId',
+  autodartsUsername: 'autodartsUsername',
+  accessTokenEncrypted: 'accessTokenEncrypted',
+  accessTokenExpiresAt: 'accessTokenExpiresAt',
+  refreshTokenEncrypted: 'refreshTokenEncrypted',
+  lastLoginAt: 'lastLoginAt',
   updatedAt: 'updatedAt'
 };
 
@@ -139,9 +151,15 @@ exports.Prisma.QueryMode = {
   insensitive: 'insensitive'
 };
 
+exports.Prisma.NullsOrder = {
+  first: 'first',
+  last: 'last'
+};
+
 
 exports.Prisma.ModelName = {
-  User: 'User'
+  User: 'User',
+  AutodartsSession: 'AutodartsSession'
 };
 
 /**
