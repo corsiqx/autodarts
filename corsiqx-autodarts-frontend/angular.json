@@ -32,6 +32,7 @@
               "node_modules/@fontsource/barlow-condensed/700.css",
               "node_modules/@phosphor-icons/web/src/regular/style.css",
               "node_modules/@phosphor-icons/web/src/fill/style.css",
+              "node_modules/flag-icons/css/flag-icons.min.css",
               "src/styles.css"
             ]
           },
