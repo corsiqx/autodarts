@@ -18,7 +18,7 @@
             <app-flag class="text-sm" [country]="p.country" />
             @if (averageBadge(); as badge) {
               <span
-                class="inline-flex h-6 items-center rounded-md px-2 font-display text-base font-bold tabular-nums"
+                class="h-6 text-base"
                 [class]="badge.tier"
                 [attr.title]="'3-Dart-Average ' + badge.exact"
                 >{{ badge.value }}<span class="sr-only"> Average</span></span

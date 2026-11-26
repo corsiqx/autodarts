@@ -48,6 +48,7 @@ export class PlayerStrip {
       figure('Siegquote', p.winRate, (n) => `${oneDecimal.format(n)} %`),
       figure('Checkout', p.checkoutRate, (n) => `${whole.format(n)} %`),
       figure('First 9 Ø', p.first9Average, (n) => oneDecimal.format(n)),
+      figure('180er', p.total180s, (n) => whole.format(n)),
       figure('Turniere', p.tournamentsPlayed, (n) => whole.format(n)),
     ].filter((f): f is Figure => f !== null);
   });

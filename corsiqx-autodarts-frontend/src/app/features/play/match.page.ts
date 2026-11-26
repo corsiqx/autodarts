@@ -28,7 +28,8 @@ import { PlayApiService } from '../../core/play/play-api.service';
 import { ApiErrorBody } from '../../core/users/user.model';
 import { UsersStore } from '../../core/users/users.store';
 import { Avatar } from '../../shared/avatar';
-import { averageTierClasses } from '../../shared/average-tier';
+import { botLevel } from '../../shared/average-tier';
+import { BotTag } from '../../shared/bot-tag';
 import { checkoutRoute } from '../../shared/checkout';
 import { BoardHit, Dartboard } from '../../shared/dartboard';
 import { Flag } from '../../shared/flag';
@@ -52,7 +53,7 @@ const OUT_SHORT: Record<string, string> = { Straight: 'SO', Double: 'DO', Master
 /** A running X01 match: player tiles left and right, board or camera in the middle. */
 @Component({
   selector: 'app-match-page',
-  imports: [NgTemplateOutlet, RouterLink, Avatar, Flag, Dartboard, BoardCameraView, BoardCameraFusion],
+  imports: [NgTemplateOutlet, RouterLink, Avatar, Flag, Dartboard, BoardCameraView, BoardCameraFusion, BotTag],
   templateUrl: './match.page.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
@@ -66,7 +67,6 @@ export class MatchPage implements OnInit {
   private readonly destroyRef = inject(DestroyRef);
   private readonly abortDialog = viewChild<ElementRef<HTMLDialogElement>>('abortDialog');
 
-  protected readonly tier = averageTierClasses;
   protected readonly numbers = Array.from({ length: 20 }, (_, i) => i + 1);
   protected readonly quickScores = [26, 41, 45, 60, 81, 85, 100, 140, 180];
 
@@ -309,7 +309,9 @@ export class MatchPage implements OnInit {
   }
 
   protected playerLabel(player: MatchViewPlayer): string {
-    return player.isBot && player.botAverage !== null ? `Bot ${player.botAverage}` : player.name;
+    return player.isBot && player.botAverage !== null
+      ? `Bot-Level ${botLevel(player.botAverage)}`
+      : player.name;
   }
 
   private run(request: () => Observable<void>): void {

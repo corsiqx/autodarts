@@ -45,7 +45,7 @@ export class CommunityPanel {
   );
 
   protected formatAverage(value: number | null): string {
-    return value === null ? '' : `Ø ${average.format(value)}`;
+    return value === null ? '' : average.format(value);
   }
 
   protected readonly tier = averageTierClasses;

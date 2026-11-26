@@ -10,7 +10,8 @@ import { PlayApiService } from '../../core/play/play-api.service';
 import { ApiErrorBody } from '../../core/users/user.model';
 import { UsersStore } from '../../core/users/users.store';
 import { Avatar } from '../../shared/avatar';
-import { averageTierClasses } from '../../shared/average-tier';
+import { BOT_LEVELS } from '../../shared/average-tier';
+import { BotTag } from '../../shared/bot-tag';
 
 const SETTINGS_KEY = 'corsiqx.play-settings';
 const MAX_PLAYERS = 6;
@@ -51,7 +52,7 @@ function loadSettings(): SavedSettings {
 /** Game settings and players, then starts the match on the Autodarts game server. */
 @Component({
   selector: 'app-play-setup-page',
-  imports: [FormsModule, RouterLink, Avatar],
+  imports: [FormsModule, RouterLink, Avatar, BotTag],
   templateUrl: './play-setup.page.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
@@ -67,8 +68,7 @@ export class PlaySetupPage implements OnInit {
     { value: 'Double', label: 'Double' },
     { value: 'Master', label: 'Master' },
   ];
-  protected readonly botAverages = [20, 30, 40, 50, 60, 70, 80, 90, 100];
-  protected readonly tier = averageTierClasses;
+  protected readonly botLevels = BOT_LEVELS;
 
   private readonly saved = loadSettings();
   protected readonly baseScore = signal(this.saved.baseScore);
@@ -82,7 +82,6 @@ export class PlaySetupPage implements OnInit {
   protected readonly opponents = signal<Opponent[]>(this.saved.opponents);
 
   protected readonly guestName = signal('');
-  protected readonly botAverage = signal(40);
   protected readonly boards = signal<DashboardBoard[] | null>(null);
   protected readonly starting = signal(false);
   protected readonly error = signal<string | null>(null);
@@ -128,9 +127,9 @@ export class PlaySetupPage implements OnInit {
     });
   }
 
-  protected addBot(): void {
+  protected addBot(average: number): void {
     if (this.full()) return;
-    this.opponents.update((list) => [...list, { kind: 'bot', average: this.botAverage() }]);
+    this.opponents.update((list) => [...list, { kind: 'bot', average }]);
   }
 
   protected addGuest(): void {
