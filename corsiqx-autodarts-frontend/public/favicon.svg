@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <!-- Same target mark as the navbar logo: rings, bull and an arrow from the top right. -->
+  <rect width="64" height="64" rx="14" fill="#070d1f" />
+  <g fill="none" stroke="#56c2ff" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M47.5 18.2A21 21 0 1 0 51.8 27" stroke-width="5.5" />
+    <path d="M40.6 25.3A11 11 0 1 0 42.2 30" stroke-width="5" />
+    <path d="M32 32 49 15" stroke-width="5" />
+    <path d="M44 15h5v5" stroke-width="4.5" />
+  </g>
+  <circle cx="32" cy="32" r="3.6" fill="#56c2ff" />
+</svg>
