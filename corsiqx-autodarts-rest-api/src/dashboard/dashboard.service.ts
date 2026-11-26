@@ -2,6 +2,10 @@ import { BadRequestException, Injectable, Logger } from '@nestjs/common';
 import { AutodartsApiClient } from '../autodarts/autodarts-api.client';
 import { AutodartsSessionService } from '../autodarts/autodarts-session.service';
 import {
+  BoardCamera,
+  toBoardCamera,
+  toCalibration,
+  toSnapshotUrl,
   HomeFriend,
   HomeProfile,
   HomeTournament,
@@ -182,6 +186,41 @@ export class DashboardService {
     } else {
       await this.autodarts.request(userId, 'PUT', `${path}/${action}`);
     }
+  }
+
+  /** Camera sources of a board: local MJPEG streams and the board's address over TLS. */
+  async camera(userId: string, boardId: string): Promise<BoardCamera | null> {
+    const path = `/bs/v0/boards/${this.checkedBoardId(boardId)}`;
+    // Calibration and camera stats only answer while the board is online.
+    const optional = (suffix: string) =>
+      this.autodarts.get(userId, `${path}${suffix}`).catch(() => null);
+    const [board, numCams, ellipses, camStats] = await Promise.all([
+      this.autodarts.get(userId, path),
+      optional('/num-cams'),
+      optional('/config/calibration/ellipses'),
+      optional('/cams/stats'),
+    ]);
+    return toBoardCamera(board, numCams, toCalibration(ellipses, camStats));
+  }
+
+  /** One fresh camera picture through the Autodarts cloud (the slow fallback). */
+  async snapshot(
+    userId: string,
+    boardId: string,
+    cam: number,
+  ): Promise<string | null> {
+    const path = `/bs/v0/boards/${this.checkedBoardId(boardId)}/img/live?cam=${cam}&warp=false`;
+    return toSnapshotUrl(await this.autodarts.get(userId, path));
+  }
+
+  private checkedBoardId(boardId: string): string {
+    if (!SAFE_ID.test(boardId)) {
+      throw new BadRequestException({
+        code: 'invalid_board_id',
+        message: 'Ungültige Board-ID.',
+      });
+    }
+    return boardId;
   }
 
   /** The account's running match, or `null` when it is not playing. */

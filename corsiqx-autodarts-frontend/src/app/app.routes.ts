@@ -15,5 +15,18 @@ export const routes: Routes = [
     loadComponent: () =>
       import('./features/dashboard/dashboard.page').then((m) => m.DashboardPage),
   },
+  {
+    path: 'play',
+    title: 'Jetzt spielen | corsiqx autodarts',
+    canActivate: [sessionGuard],
+    loadComponent: () =>
+      import('./features/play/play-setup.page').then((m) => m.PlaySetupPage),
+  },
+  {
+    path: 'match/:matchId',
+    title: 'Match | corsiqx autodarts',
+    canActivate: [sessionGuard],
+    loadComponent: () => import('./features/play/match.page').then((m) => m.MatchPage),
+  },
   { path: '**', redirectTo: '' },
 ];

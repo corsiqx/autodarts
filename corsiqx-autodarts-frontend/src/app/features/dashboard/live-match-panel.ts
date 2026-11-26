@@ -1,11 +1,12 @@
 import { NgTemplateOutlet } from '@angular/common';
+import { RouterLink } from '@angular/router';
 import { ChangeDetectionStrategy, Component, computed, inject } from '@angular/core';
 import { DashboardStore } from '../../core/autodarts/dashboard.store';
 import { initials } from '../../shared/initials';
 
 @Component({
   selector: 'app-live-match-panel',
-  imports: [NgTemplateOutlet],
+  imports: [NgTemplateOutlet, RouterLink],
   host: { class: 'block' },
   templateUrl: './live-match-panel.html',
   changeDetection: ChangeDetectionStrategy.OnPush,

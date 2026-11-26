@@ -14,6 +14,12 @@
         </span>
         Läuft
       </span>
+      <a
+        [routerLink]="['/match', match()!.id]"
+        class="ml-auto inline-flex h-9 items-center gap-1.5 rounded-lg bg-linear-to-r from-accent to-sky px-3 text-sm font-bold text-board hover:brightness-110"
+      >
+        Zum Match<i class="ph ph-arrow-right" aria-hidden="true"></i>
+      </a>
     }
   </div>
 

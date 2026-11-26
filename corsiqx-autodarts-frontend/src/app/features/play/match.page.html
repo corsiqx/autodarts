@@ -1,0 +1,356 @@
+@let m = match();
+<div class="app-backdrop relative flex min-h-dvh flex-col overflow-x-clip lg:h-dvh lg:overflow-hidden">
+  <!-- Top row: leave + settings chips | darts of this visit | match actions -->
+  <header class="grid grid-cols-[auto_minmax(0,1fr)_auto] items-start gap-3 px-3 pt-3 sm:px-5 sm:pt-4 lg:grid-cols-[minmax(0,1fr)_minmax(0,46rem)_minmax(0,1fr)]">
+    <div class="grid gap-2">
+      <a
+        routerLink="/dashboard"
+        class="inline-flex w-fit items-center gap-1.5 text-sm font-semibold text-bone/90 hover:text-bone"
+        title="Zurück zum Start, das Match läuft weiter"
+      >
+        <i class="ph ph-caret-left" aria-hidden="true"></i>Verlassen
+      </a>
+      <div class="hidden flex-wrap gap-1.5 sm:flex">
+        @for (chip of chips(); track chip) {
+          <span class="rounded-full bg-surface-2 px-2.5 py-0.5 text-xs font-semibold text-bone/85">{{ chip }}</span>
+        }
+      </div>
+    </div>
+
+    <div
+      class="grid h-14 grid-cols-[repeat(3,minmax(0,1fr))_4.5rem] overflow-hidden rounded-xl bg-[#0b1224]/85 ring-1 ring-white/5 sm:h-[4.5rem] sm:grid-cols-[repeat(3,minmax(0,1fr))_6rem]"
+      aria-label="Aktuelle Aufnahme"
+    >
+      @for (slot of [0, 1, 2]; track slot) {
+        <div class="grid place-items-center">
+          @if (turnThrows()[slot]; as dart) {
+            <span class="font-display text-2xl font-bold tabular-nums sm:text-3xl">{{ dart }}</span>
+          } @else {
+            <svg viewBox="0 0 48 12" class="h-3 w-10 text-bone/80 sm:w-12" aria-hidden="true">
+              <circle cx="3" cy="6" r="3" fill="currentColor" />
+              <rect x="5" y="4.4" width="15" height="3.2" rx="1.4" fill="currentColor" />
+              <rect x="20" y="5.4" width="12" height="1.2" fill="currentColor" />
+              <path d="M32 6 L42 1.5 L45 1.5 L39 6 L45 10.5 L42 10.5 Z" fill="currentColor" opacity="0.7" />
+            </svg>
+            <span class="sr-only">Dart {{ slot + 1 }} offen</span>
+          }
+        </div>
+      }
+      <div class="grid place-items-center border-l border-white/10">
+        @if (m?.turnBusted) {
+          <span class="font-display text-xl font-bold uppercase text-danger">Bust</span>
+        } @else {
+          <span class="font-display text-3xl font-bold tabular-nums sm:text-4xl">{{ turnPoints() }}</span>
+        }
+      </div>
+    </div>
+
+    <div class="flex justify-end">
+      @if (m && !m.finished) {
+        <button
+          type="button"
+          class="grid size-10 cursor-pointer place-items-center rounded-lg text-bone/85 transition-colors hover:bg-danger/15 hover:text-danger"
+          title="Match abbrechen"
+          (click)="openAbort()"
+        >
+          <i class="ph ph-x-circle text-2xl" aria-hidden="true"></i>
+          <span class="sr-only">Match abbrechen</span>
+        </button>
+      }
+    </div>
+  </header>
+
+  @if (!m) {
+    <main class="grid flex-1 place-items-center p-6">
+      @if (loadError(); as error) {
+        <div class="grid justify-items-center gap-3 text-center" role="alert">
+          <i class="ph ph-warning-circle text-4xl text-danger" aria-hidden="true"></i>
+          <p class="text-lg font-semibold">{{ error }}</p>
+          <a routerLink="/dashboard" class="text-sky underline-offset-2 hover:underline">Zurück zum Start</a>
+        </div>
+      } @else {
+        <div class="aspect-square w-[min(80vw,60vh)] rounded-full bg-surface/60 motion-safe:animate-pulse" aria-label="Match wird geladen"></div>
+      }
+    </main>
+  } @else {
+    <main
+      class="flex min-h-0 flex-1 flex-col gap-3 px-3 pb-24 pt-3 sm:px-5 lg:grid lg:grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] lg:grid-rows-[minmax(0,1fr)] lg:items-center lg:gap-8 lg:pb-24"
+    >
+      <!-- Left tiles (players 1, 3, 5). On phones all tiles sit in one row above the board. -->
+      <div class="grid grid-cols-2 gap-3 lg:contents">
+        <div class="contents lg:flex lg:flex-col lg:items-end lg:gap-4">
+          @for (entry of sides().left; track entry.index) {
+            <ng-container *ngTemplateOutlet="tile; context: { $implicit: entry.player, index: entry.index }" />
+          }
+        </div>
+        <div class="contents lg:order-last lg:flex lg:flex-col lg:items-start lg:gap-4">
+          @for (entry of sides().right; track entry.index) {
+            <ng-container *ngTemplateOutlet="tile; context: { $implicit: entry.player, index: entry.index }" />
+          }
+        </div>
+      </div>
+
+      <!-- Board or camera -->
+      <div class="relative mx-auto aspect-square w-full max-w-[min(100%,calc(100dvh-14rem))] lg:col-start-2 lg:row-start-1 lg:h-full lg:w-auto lg:max-w-none">
+        @if (view().kind === 'all' && camera(); as cam) {
+          <app-board-camera-fusion class="size-full" [camera]="cam" (failed)="fusionFailed()" />
+        } @else if (view().kind === 'cam' && camera(); as cam) {
+          <app-board-camera class="size-full" [userId]="uid()" [camera]="cam" [cam]="$any(view()).index" />
+        } @else {
+          <app-dartboard class="size-full" [disabled]="!canEnter() || turnFull()" [darts]="turnCoords()" (hit)="boardHit($event)" />
+        }
+
+        @if (camera(); as cam) {
+          <button
+            type="button"
+            class="absolute left-0 top-0 inline-flex h-8 cursor-pointer items-center gap-1.5 rounded-lg border border-accent bg-board/80 px-2.5 text-sm font-semibold text-bone hover:bg-accent/25"
+            [title]="view().kind === 'board' ? 'Kamera zeigen' : 'Weiter schalten'"
+            (click)="nextView()"
+          >
+            @if (view().kind === 'cam') {
+              <i class="ph-fill ph-camera" aria-hidden="true"></i>{{ $any(view()).index + 1 }}
+            } @else if (view().kind === 'all') {
+              <i class="ph-fill ph-camera" aria-hidden="true"></i>Alle
+            } @else {
+              <i class="ph-fill ph-camera" aria-hidden="true"></i><span class="text-muted">aus</span>
+            }
+          </button>
+        }
+
+
+        @if (m.finished) {
+          <div class="absolute inset-[12%] grid place-items-center rounded-3xl bg-board/85 p-6 text-center backdrop-blur-sm">
+            <div class="grid justify-items-center gap-3">
+              <i class="ph-fill ph-trophy text-5xl text-amber-300" aria-hidden="true"></i>
+              <p class="font-display text-4xl leading-none font-bold uppercase italic">
+                {{ winner() ? playerLabel(winner()!) + ' gewinnt' : 'Match beendet' }}
+              </p>
+              @if (winner(); as w) {
+                <p class="text-muted">Ø {{ format(w.average) }} · {{ w.dartsThrown }} Darts</p>
+              }
+              <div class="mt-2 flex flex-wrap justify-center gap-2">
+                <button
+                  type="button"
+                  class="inline-flex h-11 cursor-pointer items-center gap-2 rounded-lg bg-linear-to-r from-accent to-sky px-4 font-display text-lg font-bold uppercase text-board hover:brightness-110 disabled:opacity-60"
+                  [disabled]="busy()"
+                  (click)="rematch()"
+                >
+                  <i class="ph ph-arrows-clockwise" aria-hidden="true"></i>Revanche
+                </button>
+                <a routerLink="/play" class="inline-flex h-11 items-center gap-2 rounded-lg border border-line-strong px-4 font-semibold hover:bg-surface-2">Neues Spiel</a>
+                <a routerLink="/dashboard" class="inline-flex h-11 items-center rounded-lg px-4 font-semibold text-muted hover:bg-surface-2 hover:text-bone">Zum Start</a>
+              </div>
+            </div>
+          </div>
+        } @else if (m.gameFinished) {
+          <div class="absolute inset-[18%] grid place-items-center rounded-3xl bg-board/85 p-6 text-center backdrop-blur-sm">
+            <div class="grid justify-items-center gap-3">
+              <p class="font-display text-3xl font-bold uppercase italic">Leg an {{ legWinner() ? playerLabel(legWinner()!) : '–' }}</p>
+              <button
+                type="button"
+                class="inline-flex h-11 cursor-pointer items-center gap-2 rounded-lg bg-linear-to-r from-accent to-sky px-4 font-display text-lg font-bold uppercase text-board hover:brightness-110 disabled:opacity-60"
+                [disabled]="busy()"
+                (click)="act('next-leg')"
+              >
+                Nächstes Leg<i class="ph ph-arrow-right" aria-hidden="true"></i>
+              </button>
+            </div>
+          </div>
+        }
+      </div>
+    </main>
+
+    <!-- Keypad (opens above the control bar) -->
+    @if (keypadOpen() && canEnter()) {
+      <section
+        class="fixed bottom-20 left-1/2 z-30 w-[min(48rem,calc(100%-1.5rem))] -translate-x-1/2 rounded-2xl border border-line bg-surface/95 p-3 shadow-2xl backdrop-blur-md sm:p-4"
+        aria-label="Tastenfeld"
+      >
+        <div class="mb-3 grid w-fit grid-cols-2 gap-1 rounded-lg bg-board/60 p-1" role="tablist" aria-label="Eingabeart">
+          <button type="button" role="tab" class="h-9 cursor-pointer rounded-md px-3 text-sm font-semibold" [class]="inputMode() === 'darts' ? 'bg-surface-2 text-bone' : 'text-muted hover:text-bone'" [attr.aria-selected]="inputMode() === 'darts'" (click)="inputMode.set('darts')">Einzelne Darts</button>
+          <button type="button" role="tab" class="h-9 cursor-pointer rounded-md px-3 text-sm font-semibold" [class]="inputMode() === 'score' ? 'bg-surface-2 text-bone' : 'text-muted hover:text-bone'" [attr.aria-selected]="inputMode() === 'score'" (click)="inputMode.set('score')">Punkte</button>
+        </div>
+
+        @if (inputMode() === 'darts') {
+          <div class="grid grid-cols-3 gap-1.5" role="group" aria-label="Multiplikator">
+            @for (mult of [['S', 'Single'], ['D', 'Double'], ['T', 'Triple']]; track mult[0]) {
+              <button
+                type="button"
+                class="h-10 cursor-pointer rounded-lg font-display text-lg font-bold uppercase"
+                [class]="multiplier() === mult[0] ? (mult[0] === 'D' ? 'bg-emerald-500 text-board' : mult[0] === 'T' ? 'bg-rose-500 text-white' : 'bg-bone text-board') : 'bg-board/60 text-muted hover:text-bone'"
+                [attr.aria-pressed]="multiplier() === mult[0]"
+                (click)="multiplier.set($any(mult[0]))"
+              >
+                {{ mult[1] }}
+              </button>
+            }
+          </div>
+          <div class="mt-1.5 grid grid-cols-5 gap-1.5 sm:grid-cols-10" role="group" aria-label="Zahlen">
+            @for (n of numbers; track n) {
+              <button
+                type="button"
+                class="h-11 cursor-pointer rounded-lg bg-surface-2 font-display text-xl font-bold tabular-nums hover:bg-accent/30 active:scale-95 disabled:cursor-not-allowed disabled:opacity-40"
+                [disabled]="turnFull()"
+                [attr.aria-label]="(multiplier() === 'S' ? 'Single ' : multiplier() === 'D' ? 'Double ' : 'Triple ') + n"
+                (click)="throwDart(n)"
+              >
+                {{ n }}
+              </button>
+            }
+          </div>
+          <div class="mt-1.5 grid grid-cols-3 gap-1.5">
+            <button type="button" class="h-11 cursor-pointer rounded-lg bg-surface-2 font-display text-xl font-bold hover:bg-accent/30 disabled:opacity-40" [disabled]="turnFull()" (click)="throwDart('25')">25</button>
+            <button type="button" class="h-11 cursor-pointer rounded-lg bg-surface-2 font-display text-xl font-bold hover:bg-accent/30 disabled:opacity-40" [disabled]="turnFull()" (click)="throwDart('Bull')">Bull</button>
+            <button type="button" class="h-11 cursor-pointer rounded-lg bg-surface-2 font-display text-xl font-bold text-muted hover:bg-danger/20 hover:text-danger disabled:opacity-40" [disabled]="turnFull()" (click)="throwDart('Miss')">Miss</button>
+          </div>
+        } @else {
+          <div class="grid gap-2 sm:grid-cols-[minmax(0,1fr)_minmax(0,1.2fr)]">
+            <div>
+              <p class="flex h-14 items-center justify-end rounded-lg bg-board/70 px-4 font-display text-4xl font-bold tabular-nums" aria-live="polite">{{ typedScore() || '0' }}</p>
+              <div class="mt-2 grid grid-cols-3 gap-1.5">
+                @for (q of quickScores; track q) {
+                  <button type="button" class="h-9 cursor-pointer rounded-lg bg-board/60 font-display text-lg font-bold tabular-nums text-muted hover:bg-accent/25 hover:text-bone" (click)="submitScore(q)">{{ q }}</button>
+                }
+              </div>
+            </div>
+            <div class="grid grid-cols-3 gap-1.5">
+              @for (d of ['1', '2', '3', '4', '5', '6', '7', '8', '9']; track d) {
+                <button type="button" class="h-11 cursor-pointer rounded-lg bg-surface-2 font-display text-2xl font-bold hover:bg-accent/30 active:scale-95" (click)="typeDigit(d)">{{ d }}</button>
+              }
+              <button type="button" class="h-11 cursor-pointer rounded-lg bg-surface-2 text-xl text-muted hover:text-bone" aria-label="Letzte Ziffer löschen" (click)="deleteDigit()"><i class="ph ph-backspace" aria-hidden="true"></i></button>
+              <button type="button" class="h-11 cursor-pointer rounded-lg bg-surface-2 font-display text-2xl font-bold hover:bg-accent/30 active:scale-95" (click)="typeDigit('0')">0</button>
+              <button type="button" class="h-11 cursor-pointer rounded-lg bg-linear-to-r from-accent to-sky font-display text-xl font-bold text-board hover:brightness-110" (click)="submitScore()">OK</button>
+            </div>
+          </div>
+        }
+      </section>
+    }
+
+    @if (actionError(); as error) {
+      <p class="fixed bottom-20 left-1/2 z-40 flex -translate-x-1/2 items-center gap-2 rounded-lg border border-danger/40 bg-board/95 px-4 py-2 text-sm text-danger shadow-xl" role="alert">
+        <i class="ph-fill ph-warning-circle" aria-hidden="true"></i>{{ error }}
+      </p>
+    }
+
+    <!-- Control bar -->
+    <nav
+      class="fixed bottom-3 left-1/2 z-30 flex h-14 w-[min(48rem,calc(100%-1.5rem))] -translate-x-1/2 items-center gap-2 rounded-xl border border-accent/25 bg-[#0b2a66]/85 px-3 shadow-[0_20px_40px_-20px_rgb(0_0_0/0.8)] backdrop-blur-md"
+      aria-label="Spielsteuerung"
+    >
+      <button
+        type="button"
+        class="grid size-9 cursor-pointer place-items-center rounded-lg transition-colors disabled:cursor-not-allowed disabled:opacity-40"
+        [class]="keypadOpen() ? 'bg-sky text-board' : 'bg-accent text-white hover:brightness-110'"
+        [disabled]="!canEnter()"
+        [attr.aria-pressed]="keypadOpen()"
+        title="Tastenfeld"
+        (click)="keypadOpen.set(!keypadOpen())"
+      >
+        <i class="ph-fill ph-keyboard text-lg" aria-hidden="true"></i>
+        <span class="sr-only">Tastenfeld</span>
+      </button>
+      <span class="ml-auto"></span>
+      <button
+        type="button"
+        class="grid size-10 cursor-pointer place-items-center rounded-lg border border-accent/70 text-bone transition-colors hover:bg-accent/25 disabled:opacity-40"
+        [disabled]="busy() || !canEnter()"
+        title="Rückgängig"
+        (click)="act('undo')"
+      >
+        <i class="ph ph-arrow-u-up-left text-lg" aria-hidden="true"></i>
+        <span class="sr-only">Rückgängig</span>
+      </button>
+      <button
+        type="button"
+        class="inline-flex h-10 cursor-pointer items-center rounded-lg bg-accent px-4 font-semibold text-white transition-[filter] hover:brightness-110 disabled:opacity-40"
+        [disabled]="busy() || !canEnter()"
+        (click)="act('next-player')"
+      >
+        Weiter
+      </button>
+    </nav>
+  }
+
+  <ng-template #tile let-p let-i="index">
+    @let active = isActive(i);
+    @let last = lastVisit(i);
+    <article
+      class="relative w-full rounded-2xl px-3 py-4 text-center transition-[background-color,box-shadow] duration-300 sm:px-5 sm:py-5 lg:w-[clamp(15rem,20vw,21rem)]"
+      [class]="active ? 'bg-linear-to-br from-[#5b2bd6] via-[#3d55f0] to-[#2fa8f5] shadow-[0_24px_50px_-24px_rgb(61_123_255/0.9)]' : 'bg-[#0f1626]/90 ring-1 ring-white/5'"
+      [attr.aria-current]="active ? 'true' : null"
+    >
+      <div class="flex items-center justify-center gap-2">
+        @if (active) {
+          <span class="size-1.5 rounded-full bg-white" aria-hidden="true"></span>
+        }
+        <span class="inline-flex min-w-0 items-center rounded-md bg-board/75 pr-2">
+          @if (p.isBot) {
+            <span class="-my-1 -ml-1 mr-1.5 grid size-8 shrink-0 place-items-center rounded-full bg-board text-sky ring-2 ring-board" aria-hidden="true">
+              <i class="ph-fill ph-robot"></i>
+            </span>
+          } @else {
+            <app-avatar class="-my-1 -ml-1 mr-1.5 size-8 rounded-full ring-2 ring-board" [name]="p.name" [url]="p.avatarUrl" />
+          }
+          <span class="truncate font-display text-sm font-bold uppercase tracking-wide sm:text-base">{{ playerLabel(p) }}</span>
+          <app-flag class="ml-1.5 text-[0.65rem]" [country]="p.country" />
+        </span>
+      </div>
+
+      <div class="mt-1 flex items-start justify-center gap-1.5">
+        <span class="font-display text-[clamp(3rem,13vw,4.5rem)] leading-[0.95] font-bold tabular-nums lg:text-[clamp(4rem,6.2vw,7rem)]" [class]="active ? 'text-bone' : 'text-bone/90'">
+          <span class="sr-only">Rest </span>{{ p.score ?? '–' }}
+        </span>
+        <span class="mt-2 grid h-6 min-w-6 place-items-center rounded bg-board px-1 font-display text-base font-bold sm:h-7 sm:min-w-7 sm:text-lg" title="Gewonnene Legs">
+          {{ p.legs }}<span class="sr-only"> Legs</span>
+        </span>
+      </div>
+      @if (m?.setsToWin) {
+        <p class="text-xs text-bone/75">Sets {{ p.sets }}</p>
+      }
+      <p class="mt-1 text-sm text-bone/85 sm:text-base">
+        Leg <b class="tabular-nums">{{ format(p.legAverage) }}</b> / Match <b class="tabular-nums">{{ format(p.average) }}</b>
+      </p>
+      <p class="mt-0.5 flex items-center justify-center gap-1 text-sm sm:text-base">
+        <svg viewBox="0 0 48 12" class="h-2.5 w-8 rotate-[35deg] text-bone/80" aria-hidden="true">
+          <circle cx="3" cy="6" r="3" fill="currentColor" />
+          <rect x="5" y="4.4" width="15" height="3.2" rx="1.4" fill="currentColor" />
+          <rect x="20" y="5.4" width="12" height="1.2" fill="currentColor" />
+          <path d="M32 6 L42 1.5 L45 1.5 L39 6 L45 10.5 L42 10.5 Z" fill="currentColor" opacity="0.7" />
+        </svg>
+        <b class="tabular-nums">{{ p.dartsThrown }}</b><span class="sr-only"> Darts</span>
+      </p>
+      @if (last) {
+        <p class="mt-2 truncate text-xs text-bone/70">
+          Zuletzt {{ last.throws.join(' ') }} ·
+          <b class="text-bone/90">{{ last.busted ? 'Bust' : (last.points ?? 0) }}</b>
+        </p>
+      }
+      @if (active && checkout(); as route) {
+        <!-- Checkout route: stacked on the left edge (wide tiles), one row under the numbers on phones. -->
+        <ol class="absolute left-3 top-1/2 hidden -translate-y-1/2 flex-col gap-1.5 lg:flex" aria-label="Checkout">
+          @for (dart of route; track $index) {
+            <li class="min-w-11 rounded-lg bg-board/70 px-2 py-1 text-center font-display text-base font-bold text-emerald-300">{{ dart }}</li>
+          }
+        </ol>
+        <ol class="mt-2 flex flex-wrap items-center justify-center gap-1 lg:hidden" aria-label="Checkout">
+          @for (dart of route; track $index) {
+            <li class="rounded-md bg-board/70 px-1.5 py-0.5 font-display text-sm font-bold text-emerald-300">{{ dart }}</li>
+          }
+        </ol>
+      }
+    </article>
+  </ng-template>
+
+  <dialog
+    #abortDialog
+    class="account-dialog m-auto w-[min(26rem,calc(100vw-2rem))] rounded-xl border border-line bg-surface p-6 text-bone backdrop:bg-board/70 backdrop:backdrop-blur-sm"
+    aria-labelledby="abort-title"
+  >
+    <h2 id="abort-title" class="font-display text-2xl font-bold uppercase">Match abbrechen?</h2>
+    <p class="mt-2 text-sm text-muted">Das Match wird bei Autodarts gelöscht. Das lässt sich nicht rückgängig machen.</p>
+    <div class="mt-5 flex justify-end gap-2">
+      <button type="button" class="h-10 cursor-pointer rounded-lg px-4 font-semibold text-muted hover:bg-surface-2 hover:text-bone" (click)="closeAbort()">Weiterspielen</button>
+      <button type="button" class="h-10 cursor-pointer rounded-lg bg-danger/90 px-4 font-semibold text-board hover:bg-danger" (click)="abort()">Abbrechen</button>
+    </div>
+  </dialog>
+</div>
