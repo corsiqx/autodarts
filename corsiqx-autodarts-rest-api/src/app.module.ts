@@ -4,6 +4,7 @@ import { AppService } from './app.service';
 import { ConfigModule } from '@nestjs/config';
 import { PostgresPrismaModule } from './postgres-prisma/postgres-prisma.module';
 import { CryptoModule } from './crypto/crypto.module';
+import { DashboardModule } from './dashboard/dashboard.module';
 import { UsersModule } from './users/users.module';
 
 @Module({
@@ -12,6 +13,7 @@ import { UsersModule } from './users/users.module';
     PostgresPrismaModule,
     CryptoModule,
     UsersModule,
+    DashboardModule,
   ],
   controllers: [AppController],
   providers: [AppService],
