@@ -7,6 +7,9 @@ import {
   BoardAction,
   DashboardBoard,
   DashboardStats,
+  HomeFriend,
+  HomeOverview,
+  HomeTournament,
   LiveMatch,
   Resource,
 } from './dashboard.model';
@@ -16,6 +19,9 @@ interface DashboardState {
   boards: Resource<DashboardBoard[]>;
   match: Resource<LiveMatch | null>;
   stats: Resource<DashboardStats>;
+  home: Resource<HomeOverview>;
+  friends: Resource<HomeFriend[]>;
+  tournaments: Resource<HomeTournament[]>;
   /** Running board command per board id. */
   boardActions: Record<string, BoardAction>;
   boardActionError: { boardId: string; message: string } | null;
@@ -27,6 +33,9 @@ const initialState: DashboardState = {
   boards: idle(),
   match: idle(),
   stats: idle(),
+  home: idle(),
+  friends: idle(),
+  tournaments: idle(),
   boardActions: {},
   boardActionError: null,
 };
@@ -44,7 +53,7 @@ function errorMessage(error: unknown, fallback: string): string {
   return fallback;
 }
 
-type ResourceKey = 'boards' | 'match' | 'stats';
+type ResourceKey = 'boards' | 'match' | 'stats' | 'home' | 'friends' | 'tournaments';
 
 /** Dashboard data of one account. Provided per dashboard page, so it resets on leave. */
 export const DashboardStore = signalStore(
@@ -89,6 +98,18 @@ export const DashboardStore = signalStore(
 
       loadStats(userId: string): Promise<void> {
         return load('stats', api.stats(userId), 'Statistik konnte nicht geladen werden.');
+      },
+
+      loadHome(userId: string): Promise<void> {
+        return load('home', api.home(userId), 'Profil konnte nicht geladen werden.');
+      },
+
+      loadFriends(userId: string): Promise<void> {
+        return load('friends', api.friends(userId), 'Freunde konnten nicht geladen werden.');
+      },
+
+      loadTournaments(userId: string): Promise<void> {
+        return load('tournaments', api.tournaments(userId), 'Turniere konnten nicht geladen werden.');
       },
 
       async runBoardAction(userId: string, boardId: string, action: BoardAction): Promise<void> {

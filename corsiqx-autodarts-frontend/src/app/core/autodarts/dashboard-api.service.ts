@@ -2,7 +2,15 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
 import { Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
-import { BoardAction, DashboardBoard, DashboardStats, LiveMatch } from './dashboard.model';
+import {
+  BoardAction,
+  DashboardBoard,
+  DashboardStats,
+  HomeFriend,
+  HomeOverview,
+  HomeTournament,
+  LiveMatch,
+} from './dashboard.model';
 
 /** Autodarts data of a stored account, fetched through our API. */
 @Injectable({ providedIn: 'root' })
@@ -30,5 +38,17 @@ export class DashboardApiService {
 
   stats(userId: string): Observable<DashboardStats> {
     return this.http.get<DashboardStats>(`${this.base(userId)}/stats`);
+  }
+
+  home(userId: string): Observable<HomeOverview> {
+    return this.http.get<HomeOverview>(`${this.base(userId)}/home`);
+  }
+
+  friends(userId: string): Observable<HomeFriend[]> {
+    return this.http.get<HomeFriend[]>(`${this.base(userId)}/friends`);
+  }
+
+  tournaments(userId: string): Observable<HomeTournament[]> {
+    return this.http.get<HomeTournament[]>(`${this.base(userId)}/tournaments`);
   }
 }

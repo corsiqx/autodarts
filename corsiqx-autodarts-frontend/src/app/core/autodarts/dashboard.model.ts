@@ -71,3 +71,65 @@ export interface Resource<T> {
   status: 'idle' | 'loading' | 'loaded' | 'error';
   error: string | null;
 }
+
+export interface HomeProfile {
+  id: string;
+  name: string;
+  avatarUrl: string | null;
+  country: string | null;
+  plus: boolean;
+  average: number | null;
+  first9Average: number | null;
+  /** Percent, 0–100. */
+  winRate: number | null;
+  /** Percent, 0–100. */
+  checkoutRate: number | null;
+  legsPlayed: number | null;
+  total180s: number | null;
+  tournamentsPlayed: number | null;
+  tournamentWins: number | null;
+  season: {
+    level: number;
+    xpInLevel: number;
+    xpForNextLevel: number;
+    dailyStreak: number;
+  } | null;
+}
+
+export interface HomeOverview {
+  profile: HomeProfile | null;
+  onlinePlayers: number | null;
+}
+
+export type FriendStatus = 'playing' | 'online' | 'offline';
+
+export interface HomeFriend {
+  id: string;
+  name: string;
+  avatarUrl: string | null;
+  country: string | null;
+  average: number | null;
+  plus: boolean;
+  status: FriendStatus;
+  activity: string | null;
+}
+
+export interface HomeTournament {
+  id: string;
+  name: string;
+  startsAt: string;
+  registrationOpensAt: string | null;
+  players: number;
+  maxPlayers: number;
+  minAverage: number | null;
+  maxAverage: number | null;
+  plus: boolean;
+  registered: boolean;
+  baseScore: number | null;
+  legs: number | null;
+  sets: number | null;
+  inMode: string | null;
+  outMode: string | null;
+  bullOff: boolean;
+  type: string | null;
+}

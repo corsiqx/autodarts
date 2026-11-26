@@ -1,5 +1,16 @@
 import { BadRequestException, Injectable, Logger } from '@nestjs/common';
 import { AutodartsApiClient } from '../autodarts/autodarts-api.client';
+import { AutodartsSessionService } from '../autodarts/autodarts-session.service';
+import {
+  HomeFriend,
+  HomeProfile,
+  HomeTournament,
+  toFriends,
+  toHomeProfile,
+  toOnlineCount,
+  toPlayableTournaments,
+} from './home.mapper';
+import { TtlCache } from './ttl-cache';
 import {
   DashboardBoard,
   LiveMatch,
@@ -21,7 +32,15 @@ export interface DashboardStats {
   history: MatchHistoryEntry[] | null;
 }
 
+export interface HomeOverview {
+  /** `null` when Autodarts did not deliver it. */
+  profile: HomeProfile | null;
+  onlinePlayers: number | null;
+}
+
 const HISTORY_SIZE = 10;
+/** Tournament cards shown on the start page. */
+const TOURNAMENT_LIMIT = 9;
 
 /** Board and match ids end up in upstream URLs, so only plain id characters are allowed. */
 const SAFE_ID = /^[A-Za-z0-9-]{1,64}$/;
@@ -30,7 +49,117 @@ const SAFE_ID = /^[A-Za-z0-9-]{1,64}$/;
 export class DashboardService {
   private readonly logger = new Logger(DashboardService.name);
 
-  constructor(private readonly autodarts: AutodartsApiClient) {}
+  private readonly profiles = new TtlCache<HomeProfile | null>(60_000);
+  private readonly online = new TtlCache<number | null>(120_000);
+  private readonly tournamentLists = new TtlCache<unknown>(90_000);
+  private readonly requirements = new TtlCache<boolean>(300_000);
+
+  constructor(
+    private readonly autodarts: AutodartsApiClient,
+    private readonly sessions: AutodartsSessionService,
+  ) {}
+
+  /** Stat strip data and the number of players online; each part is `null` on failure. */
+  async home(userId: string): Promise<HomeOverview> {
+    const [profile, online] = await Promise.allSettled([
+      this.profile(userId),
+      this.online.get('all', async () =>
+        toOnlineCount(await this.autodarts.get(userId, '/us/v0/users/online')),
+      ),
+    ]);
+    this.logFailures('Home', [profile, online]);
+    return {
+      profile: profile.status === 'fulfilled' ? profile.value : null,
+      onlinePlayers: online.status === 'fulfilled' ? online.value : null,
+    };
+  }
+
+  async friends(userId: string): Promise<HomeFriend[]> {
+    return toFriends(await this.autodarts.get(userId, '/as/v0/friends/'));
+  }
+
+  /**
+   * Upcoming tournaments this account can enter. Filtered locally by the published limits,
+   * then confirmed with Autodarts' requirements check for the few cards that are shown.
+   */
+  async tournaments(userId: string): Promise<HomeTournament[]> {
+    const [session, profile, raw] = await Promise.all([
+      this.sessions.ensure(userId),
+      this.profile(userId),
+      this.tournamentLists.get(userId, () =>
+        this.autodarts.get(userId, '/ts/v0/tournaments'),
+      ),
+    ]);
+    const candidates = toPlayableTournaments(
+      raw,
+      {
+        autodartsUserId: session.autodartsUserId,
+        average: profile?.average ?? null,
+        plus: profile?.plus ?? false,
+        legsPlayed: profile?.legsPlayed ?? null,
+      },
+      new Date(),
+    ).filter((t) => SAFE_ID.test(t.id));
+
+    const shown: HomeTournament[] = [];
+    for (const tournament of candidates) {
+      if (shown.length >= TOURNAMENT_LIMIT) {
+        break;
+      }
+      if (
+        tournament.registered ||
+        (await this.meetsRequirements(userId, tournament.id))
+      ) {
+        shown.push(tournament);
+      }
+    }
+    return shown;
+  }
+
+  private profile(userId: string): Promise<HomeProfile | null> {
+    return this.profiles.get(userId, async () => {
+      const { autodartsUserId } = await this.sessions.ensure(userId);
+      if (!SAFE_ID.test(autodartsUserId)) {
+        return null;
+      }
+      return toHomeProfile(
+        await this.autodarts.get(userId, `/us/v0/users/${autodartsUserId}`),
+      );
+    });
+  }
+
+  /** Autodarts' own check; when it cannot answer, the local filter decides. */
+  private async meetsRequirements(
+    userId: string,
+    tournamentId: string,
+  ): Promise<boolean> {
+    try {
+      return await this.requirements.get(
+        `${userId}:${tournamentId}`,
+        async () => {
+          const answer = await this.autodarts.get(
+            userId,
+            `/ts/v0/tournaments/${tournamentId}/requirements`,
+          );
+          return answer !== false;
+        },
+      );
+    } catch (error) {
+      this.logger.warn(`Requirements check failed: ${String(error)}`);
+      return true;
+    }
+  }
+
+  private logFailures(
+    part: string,
+    results: PromiseSettledResult<unknown>[],
+  ): void {
+    for (const result of results) {
+      if (result.status === 'rejected') {
+        this.logger.warn(`${part} part failed: ${String(result.reason)}`);
+      }
+    }
+  }
 
   async boards(userId: string): Promise<DashboardBoard[]> {
     return toBoards(await this.autodarts.get(userId, '/bs/v0/boards'));

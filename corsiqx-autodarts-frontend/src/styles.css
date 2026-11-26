@@ -91,3 +91,44 @@
     opacity: 0;
   }
 }
+
+/* Big gradient call-to-action tiles on the start page; diagonal light planes instead of photos. */
+.hero-tile {
+  position: relative;
+  isolation: isolate;
+  display: flex;
+  min-height: 9rem;
+  flex-direction: column;
+  gap: 0.75rem;
+  overflow: hidden;
+  border-radius: 0.875rem;
+  padding: 1.25rem;
+  color: #fff;
+  box-shadow: 0 18px 40px -24px rgb(61 123 255 / 0.8);
+  transition:
+    transform 0.25s var(--ease-out-expo),
+    box-shadow 0.25s var(--ease-out-expo);
+}
+
+.hero-tile:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 24px 48px -22px rgb(86 194 255 / 0.75);
+}
+
+.hero-tile__shape {
+  position: absolute;
+  inset: -20% 30% -20% -10%;
+  z-index: -1;
+  transform: skewX(-24deg);
+}
+
+.hero-tile__shape--2 {
+  inset: 45% -10% -30% 55%;
+}
+
+@media (min-width: 640px) {
+  .hero-tile {
+    min-height: 13.5rem;
+    padding: 1.5rem;
+  }
+}

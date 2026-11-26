@@ -1,0 +1,97 @@
+@let tournaments = store.tournaments();
+@let now = this.now();
+<section class="rounded-xl border border-line bg-surface/70 p-4 sm:p-5" aria-labelledby="tournaments-heading">
+  <div class="flex items-center justify-between gap-3">
+    <div>
+      <h2 id="tournaments-heading" class="font-display text-2xl font-bold uppercase">Turniere</h2>
+      <p class="text-sm text-muted">Nur Turniere, für die du gerade spielberechtigt bist</p>
+    </div>
+    <a
+      href="https://play.autodarts.com/tournaments"
+      target="_blank"
+      rel="noopener"
+      class="inline-flex h-10 shrink-0 items-center gap-1.5 rounded-lg px-3 text-sm font-semibold text-muted transition-colors duration-150 hover:bg-surface-2 hover:text-bone"
+    >
+      Alle anzeigen<i class="ph ph-arrow-up-right" aria-hidden="true"></i>
+    </a>
+  </div>
+
+  @if ((tournaments.status === 'idle' || tournaments.status === 'loading') && !tournaments.data) {
+    <div class="mt-4 grid gap-3 sm:grid-cols-2 xl:grid-cols-3" aria-busy="true" aria-label="Turniere werden geladen">
+      @for (cell of [0, 1, 2]; track cell) {
+        <div class="h-44 rounded-lg border border-line bg-surface-2/60 motion-safe:animate-pulse"></div>
+      }
+    </div>
+  } @else if (tournaments.status === 'error' && !tournaments.data) {
+    <div class="mt-4 flex flex-wrap items-center gap-3 text-sm text-danger" role="alert">
+      <span class="flex items-center gap-2"><i class="ph-fill ph-warning-circle" aria-hidden="true"></i>{{ tournaments.error }}</span>
+      <button
+        type="button"
+        class="inline-flex h-9 cursor-pointer items-center gap-1.5 rounded-lg border border-line-strong px-3 font-semibold text-bone hover:bg-surface-2"
+        (click)="reload()"
+      >
+        <i class="ph ph-arrow-clockwise" aria-hidden="true"></i>Erneut versuchen
+      </button>
+    </div>
+  } @else if (!tournaments.data?.length) {
+    <div class="mt-4 grid justify-items-start gap-1 rounded-lg border border-dashed border-line-strong px-4 py-6">
+      <i class="ph ph-trophy text-2xl text-muted" aria-hidden="true"></i>
+      <p class="font-semibold">Gerade kein passendes Turnier.</p>
+      <p class="text-sm text-muted">Neue Turniere starten laufend, die Liste aktualisiert sich von selbst.</p>
+    </div>
+  } @else {
+    <ul class="mt-4 grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
+      @for (t of tournaments.data; track t.id) {
+        @let state = this.state(t, now);
+        @let average = averageBadge(t);
+        <li class="min-w-0">
+          <a
+            [href]="link(t)"
+            target="_blank"
+            rel="noopener"
+            class="group relative flex h-full flex-col gap-3 rounded-lg border bg-surface-2/70 p-4 transition-colors duration-150 hover:border-accent/70 hover:bg-surface-2"
+            [class]="t.registered ? 'border-sky/70' : 'border-line'"
+          >
+            <span class="flex flex-wrap items-center gap-1.5 text-xs font-semibold">
+              @if (average) {
+                <span class="rounded-full border border-danger/60 px-2 py-0.5 text-bone">{{ average }}</span>
+              }
+              <span
+                class="rounded-full px-2 py-0.5"
+                [class]="
+                  state.tone === 'registered'
+                    ? 'bg-sky text-board'
+                    : state.tone === 'open'
+                      ? 'border border-emerald-400/70 text-emerald-300'
+                      : 'border border-line-strong text-muted'
+                "
+                >{{ state.label }}</span
+              >
+              <span class="rounded-full bg-board/70 px-2 py-0.5 tabular-nums text-bone">{{ countdown(t, now) }}</span>
+              <span class="ml-auto inline-flex items-center gap-1 tabular-nums text-muted">
+                <i class="ph-fill ph-user" aria-hidden="true"></i>{{ t.players }}/{{ t.maxPlayers }}
+                <span class="sr-only">Spieler</span>
+              </span>
+            </span>
+
+            <span class="grid gap-0.5">
+              <span class="flex items-center gap-2 text-lg font-semibold">
+                <span class="truncate">{{ t.name }}</span>
+                @if (t.plus) {
+                  <span class="rounded bg-linear-to-r from-amber-300 to-amber-500 px-1.5 py-px text-[0.6rem] font-bold uppercase text-board">Plus</span>
+                }
+              </span>
+              <span class="text-sm text-muted">{{ format(t) }}</span>
+            </span>
+
+            <span class="mt-auto flex flex-wrap gap-1.5">
+              @for (chip of chips(t); track chip) {
+                <span class="rounded-md bg-board/60 px-2 py-1 text-xs font-medium text-bone/90">{{ chip }}</span>
+              }
+            </span>
+          </a>
+        </li>
+      }
+    </ul>
+  }
+</section>

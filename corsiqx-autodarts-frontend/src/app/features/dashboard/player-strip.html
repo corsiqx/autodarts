@@ -1,0 +1,55 @@
+@let home = store.home();
+<section
+  class="relative overflow-hidden rounded-xl border border-line bg-linear-to-r from-accent-deep/35 via-surface/80 to-surface/80 px-4 py-4 sm:px-5"
+  aria-label="Dein Autodarts-Profil"
+>
+  <span
+    class="pointer-events-none absolute -right-24 -top-24 size-64 rounded-full bg-sky/10 blur-3xl"
+    aria-hidden="true"
+  ></span>
+
+  @if (profile(); as p) {
+    <div class="relative flex flex-wrap items-center gap-x-6 gap-y-4">
+      <div class="flex min-w-0 basis-full items-center gap-3 sm:basis-auto">
+        <app-avatar class="size-12 rounded-full ring-2 ring-accent/60" [name]="p.name" [url]="p.avatarUrl" />
+        <div class="min-w-0">
+          <p class="flex items-center gap-2">
+            <span class="truncate font-display text-xl leading-none font-bold uppercase tracking-wide">{{ p.name }}</span>
+            <app-flag class="text-sm" [country]="p.country" />
+            @if (averageBadge(); as badge) {
+              <span
+                class="inline-flex h-6 items-center rounded-md px-2 font-display text-base font-bold tabular-nums"
+                [class]="badge.tier"
+                [attr.title]="'3-Dart-Average ' + badge.exact"
+                >{{ badge.value }}<span class="sr-only"> Average</span></span
+              >
+            }
+            @if (p.plus) {
+              <span class="rounded bg-linear-to-r from-amber-300 to-amber-500 px-1.5 py-px text-[0.65rem] font-bold uppercase text-board">Plus</span>
+            }
+          </p>
+        </div>
+      </div>
+
+      <dl class="grid flex-1 grid-cols-3 gap-y-3 sm:flex sm:flex-wrap sm:items-center">
+        @for (figure of figures(); track figure.label) {
+          <div class="flex flex-col border-l border-line-strong px-3 sm:px-4 first:sm:ml-auto">
+            <dt class="order-1 text-[0.7rem] font-semibold uppercase tracking-wider text-muted">{{ figure.label }}</dt>
+            <dd class="order-2 font-display text-2xl leading-tight font-bold tabular-nums">{{ figure.value }}</dd>
+          </div>
+        }
+      </dl>
+    </div>
+  } @else if (home.status === 'error' || (home.status === 'loaded' && !profile())) {
+    <p class="relative flex items-center gap-2 text-sm text-danger" role="alert">
+      <i class="ph-fill ph-warning-circle" aria-hidden="true"></i>
+      {{ home.error ?? 'Autodarts liefert dein Profil gerade nicht.' }}
+    </p>
+  } @else {
+    <div class="relative flex items-center gap-4" aria-busy="true" aria-label="Profil wird geladen">
+      <span class="size-12 rounded-full bg-surface-2 motion-safe:animate-pulse"></span>
+      <span class="h-4 w-40 rounded bg-surface-2 motion-safe:animate-pulse"></span>
+      <span class="ml-auto hidden h-8 w-72 rounded bg-surface-2 motion-safe:animate-pulse sm:block"></span>
+    </div>
+  }
+</section>

@@ -1,54 +1,75 @@
-<div class="app-backdrop min-h-dvh">
-  <header class="border-b border-line/70 bg-board/40 backdrop-blur-md">
-    <div
-      class="mx-auto flex h-16 w-full max-w-6xl items-center justify-between gap-4 px-4 sm:px-6"
-    >
-      <p
-        class="flex items-center gap-2 font-display text-lg font-semibold uppercase tracking-[0.06em]"
-      >
+<div class="app-backdrop min-h-dvh overflow-x-clip" id="start">
+  <header class="sticky top-0 z-20 border-b border-line/70 bg-board/75 backdrop-blur-md">
+    <div class="mx-auto flex h-16 w-full max-w-[100rem] items-center gap-4 px-4 sm:px-6">
+      <p class="flex shrink-0 items-center gap-2 font-display text-lg font-semibold uppercase tracking-[0.06em]">
         <i class="ph-fill ph-target text-2xl text-sky" aria-hidden="true"></i>
-        <span class="hidden sm:inline">corsiqx autodarts</span>
+        <span class="hidden md:inline">corsiqx autodarts</span>
       </p>
 
+      <nav class="mx-auto flex min-w-0 items-center gap-1 overflow-x-auto [scrollbar-width:none]" aria-label="Bereiche">
+        @for (item of nav; track item.label) {
+          @if (item.external) {
+            <a
+              [href]="item.href"
+              target="_blank"
+              rel="noopener"
+              class="relative inline-flex h-10 shrink-0 items-center gap-1 rounded-md px-2.5 text-[0.95rem] font-semibold text-muted transition-colors duration-150 hover:text-bone sm:px-3"
+            >
+              {{ item.label }}<i class="ph ph-arrow-up-right text-xs" aria-hidden="true"></i>
+              <span class="sr-only">(öffnet Autodarts Play)</span>
+            </a>
+          } @else {
+            <button
+              type="button"
+              class="relative inline-flex h-10 shrink-0 cursor-pointer items-center rounded-md px-2.5 text-[0.95rem] font-semibold transition-colors duration-150 hover:text-bone sm:px-3"
+              [class]="item.href === 'start' ? 'text-bone' : 'text-muted'"
+              (click)="scrollTo(item.href)"
+            >
+              {{ item.label }}
+              @if (item.href === 'start') {
+                <span class="absolute inset-x-2.5 -bottom-px h-0.5 rounded-full bg-sky" aria-hidden="true"></span>
+              }
+            </button>
+          }
+        }
+      </nav>
+
       @if (users.session(); as session) {
-        <div class="flex min-w-0 items-center gap-3">
-          <span
-            class="grid size-9 shrink-0 place-items-center rounded-md bg-linear-to-br from-accent to-sky font-display text-base font-bold text-board"
-            aria-hidden="true"
-            >{{ initials(session.user.name) }}</span
-          >
-          <span class="grid min-w-0 leading-tight">
-            <span class="truncate font-semibold">{{ session.user.name }}</span>
-            <span class="truncate text-xs text-muted">
-              Autodarts{{ session.autodarts.username ? ': ' + session.autodarts.username : '' }}
-            </span>
+        <div class="flex shrink-0 items-center gap-2">
+          <app-avatar
+            class="size-9 rounded-full ring-1 ring-line-strong"
+            [name]="session.user.name"
+            [url]="dashboard.home().data?.profile?.avatarUrl ?? null"
+          />
+          <span class="hidden min-w-0 leading-tight lg:grid">
+            <span class="truncate text-sm font-semibold">{{ session.user.name }}</span>
+            <span class="truncate text-xs text-muted">{{ session.autodarts.username ?? 'Autodarts' }}</span>
           </span>
           <button
             type="button"
-            class="ml-1 inline-flex h-10 shrink-0 cursor-pointer items-center gap-2 rounded-lg border border-line-strong px-3 text-sm font-semibold text-bone transition-colors duration-150 hover:border-accent/70 hover:bg-surface-2"
+            class="ml-1 inline-flex size-10 cursor-pointer items-center justify-center rounded-lg border border-line-strong text-bone transition-colors duration-150 hover:border-accent/70 hover:bg-surface-2"
+            title="Account wechseln"
             (click)="switchAccount()"
           >
             <i class="ph ph-arrows-left-right text-base" aria-hidden="true"></i>
-            <span class="hidden sm:inline">Account wechseln</span>
-            <span class="sr-only sm:hidden">Account wechseln</span>
+            <span class="sr-only">Account wechseln</span>
           </button>
         </div>
       }
     </div>
   </header>
 
-  <main class="mx-auto w-full max-w-6xl px-4 pb-16 pt-8 sm:px-6 sm:pt-10">
-    <h1 class="font-display text-5xl leading-none font-bold uppercase tracking-[-0.01em] sm:text-6xl">
-      Dashboard
-    </h1>
-
-    <div class="mt-8 grid gap-6 lg:grid-cols-[minmax(0,1.55fr)_minmax(0,1fr)] lg:items-start">
-      <!-- Mobile: live match, boards, stats. Desktop: live match and stats on the left. -->
-      <div class="contents lg:grid lg:gap-6">
-        <app-live-match-panel />
-        <app-stats-panel class="order-last lg:order-none" [userId]="userId" />
+  <main class="mx-auto w-full max-w-[100rem] px-4 pb-16 pt-6 sm:px-6 sm:pt-8">
+    <h1 class="sr-only">Start</h1>
+    <div class="grid grid-cols-[minmax(0,1fr)] gap-4 lg:grid-cols-[minmax(0,1fr)_23rem] lg:items-start lg:gap-5">
+      <!-- Mobile: strip, tiles, tournaments, sidebar, stats. Desktop: sidebar on the right. -->
+      <div class="contents min-w-0 lg:grid lg:grid-cols-[minmax(0,1fr)] lg:gap-5">
+        <app-player-strip />
+        <app-hero-tiles />
+        <app-tournaments-panel id="turniere" class="scroll-mt-20" [userId]="userId" />
+        <app-stats-panel id="statistik" class="order-last scroll-mt-20 lg:order-none" [userId]="userId" />
       </div>
-      <app-boards-panel [userId]="userId" />
+      <app-community-panel id="freunde" class="scroll-mt-20 lg:sticky lg:top-20" [userId]="userId" />
     </div>
   </main>
 </div>

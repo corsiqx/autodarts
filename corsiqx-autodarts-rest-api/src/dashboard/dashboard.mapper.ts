@@ -4,7 +4,7 @@
  * stats and history are undocumented, so their fields are read defensively.
  */
 
-type Json = Record<string, unknown>;
+export type Json = Record<string, unknown>;
 
 export interface DashboardBoard {
   id: string;
@@ -63,19 +63,20 @@ export interface MatchHistoryEntry {
   winner: string | null;
 }
 
-const isObject = (value: unknown): value is Json =>
+export const isObject = (value: unknown): value is Json =>
   !!value && typeof value === 'object' && !Array.isArray(value);
 
-const str = (value: unknown): string | null =>
+export const str = (value: unknown): string | null =>
   typeof value === 'string' && value.trim() ? value : null;
 
-const num = (value: unknown): number | null =>
+export const num = (value: unknown): number | null =>
   typeof value === 'number' && Number.isFinite(value) ? value : null;
 
-const list = (value: unknown): unknown[] => (Array.isArray(value) ? value : []);
+export const list = (value: unknown): unknown[] =>
+  Array.isArray(value) ? value : [];
 
 /** Ids arrive as string or number. */
-const idOf = (value: unknown): string =>
+export const idOf = (value: unknown): string =>
   typeof value === 'number' ? String(value) : (str(value) ?? '');
 
 /** Finds the array in list answers like `[...]`, `{items}`, `{content}`, `{data}`. */
